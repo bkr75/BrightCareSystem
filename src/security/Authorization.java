@@ -15,7 +15,12 @@ public class Authorization {
 
             case "DOCTOR":
                 return operation.equals("VIEW_PATIENT")
-                        || operation.equals("UPDATE_DIAGNOSIS");
+                        || operation.equals("UPDATE_DIAGNOSIS")
+                        || operation.equals("GET_APPOINTMENT_LIST")
+                        || operation.equals("VIEW_MEDICAL_HISTORY")
+                        || operation.equals("GET_SCHEDULE")
+                        || operation.equals("UPDATE_SCHEDULE")
+                        || operation.equals("VIEW_CONSULTATION");
 
             case "RECEPTIONIST":
                 return operation.equals("REGISTER_PATIENT")

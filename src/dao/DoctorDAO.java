@@ -186,4 +186,35 @@ public class DoctorDAO {
     }
 
 
+    // READ
+    // Retrieve all doctors (used for reporting)
+
+    public java.util.List<Doctor> getAllDoctors() {
+
+        java.util.List<Doctor> doctors = new java.util.ArrayList<>();
+
+        String sql = "SELECT * FROM DOCTOR";
+
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()) {
+
+                doctors.add(new Doctor(
+                    rs.getInt("DOCTOR_ID"),
+                    rs.getString("DOCTOR_NAME"),
+                    rs.getString("SPECIALIZATION")
+                ));
+            }
+
+        } catch(Exception e) {
+
+            e.printStackTrace();
+        }
+
+        return doctors;
+    }
+
 }

@@ -4,7 +4,9 @@
  */
 package model;
 
-public class Patient {
+import java.io.Serializable;
+
+public class Patient implements Serializable {
 
     private int patientId;
     private String firstName;

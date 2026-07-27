@@ -4,8 +4,10 @@
  */
 package model;
 
+import java.io.Serializable;
 
-public class MedicalRecord {
+
+public class MedicalRecord implements Serializable {
 
 
     private int recordId;

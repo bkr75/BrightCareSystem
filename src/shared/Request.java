@@ -8,6 +8,7 @@ public class Request implements Serializable {
 
     private String operation;
     private Object data;
+    private String username;
 
     public Request() {
     }
@@ -15,6 +16,12 @@ public class Request implements Serializable {
     public Request(String operation, Object data) {
         this.operation = operation;
         this.data = data;
+    }
+
+    public Request(String operation, Object data, String username) {
+        this.operation = operation;
+        this.data = data;
+        this.username = username;
     }
 
     public String getOperation() {
@@ -31,6 +38,14 @@ public class Request implements Serializable {
 
     public void setData(Object data) {
         this.data = data;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
 }

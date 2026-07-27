@@ -220,4 +220,81 @@ public class MedicalRecordDAO {
 
 
 
+
+    // READ
+    // Retrieve all medical records for a patient
+
+
+    public java.util.List<MedicalRecord> getMedicalRecordsByPatientId(int patientId) {
+
+
+
+        java.util.List<MedicalRecord> records =
+                new java.util.ArrayList<>();
+
+
+
+        String sql =
+        "SELECT * FROM MEDICAL_RECORD "
+        + "WHERE PATIENT_ID=?";
+
+
+
+        try(Connection conn =
+            DBConnection.getConnection();
+
+
+            PreparedStatement ps =
+            conn.prepareStatement(sql)) {
+
+
+
+            ps.setInt(1, patientId);
+
+
+
+            ResultSet rs =
+            ps.executeQuery();
+
+
+
+            while(rs.next()) {
+
+
+
+                MedicalRecord record =
+                new MedicalRecord(
+
+                    rs.getInt("RECORD_ID"),
+
+                    rs.getInt("PATIENT_ID"),
+
+                    rs.getString("DIAGNOSIS")
+
+                );
+
+
+
+                records.add(record);
+
+            }
+
+
+
+        } catch(Exception e) {
+
+
+            e.printStackTrace();
+
+        }
+
+
+
+        return records;
+
+
+    }
+
+
+
 }

@@ -5,9 +5,10 @@
 package model;
 
 import java.sql.Date;
+import java.io.Serializable;
 
 
-public class Appointment {
+public class Appointment implements Serializable {
 
 
     private int appointmentId;

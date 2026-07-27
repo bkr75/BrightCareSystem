@@ -371,4 +371,89 @@ public class AppointmentDAO {
 
     }
 
+    // Retrieve all appointments (used for reporting)
+
+    public java.util.List<Appointment> getAllAppointments() {
+
+        java.util.List<Appointment> appointments =
+                new java.util.ArrayList<>();
+
+        String sql = "SELECT * FROM APPOINTMENT";
+
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()) {
+
+                appointments.add(new Appointment(
+                    rs.getInt("APPOINTMENT_ID"),
+                    rs.getInt("PATIENT_ID"),
+                    rs.getInt("DOCTOR_ID"),
+                    rs.getInt("SCHEDULE_ID"),
+                    rs.getDate("APPOINTMENT_DATE"),
+                    rs.getString("STATUS")
+                ));
+            }
+
+        } catch(Exception e) {
+
+            e.printStackTrace();
+        }
+
+        return appointments;
+    }
+
+    // Retrieve appointments that fall within a given month/year (used for the
+    // monthly appointment summary report)
+
+    public java.util.List<Appointment> getAppointmentsByMonth(int month, int year) {
+
+        java.util.List<Appointment> appointments =
+                new java.util.ArrayList<>();
+
+        String sql =
+        "SELECT * FROM APPOINTMENT "
+        + "WHERE APPOINTMENT_DATE >= ? AND APPOINTMENT_DATE < ?";
+
+        // Compute the first day of the given month and the first day of
+        // the following month, since Derby has no reliable MONTH()/YEAR().
+
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.clear();
+        cal.set(year, month - 1, 1);
+        java.sql.Date startDate = new java.sql.Date(cal.getTimeInMillis());
+
+        cal.add(java.util.Calendar.MONTH, 1);
+        java.sql.Date endDate = new java.sql.Date(cal.getTimeInMillis());
+
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setDate(1, startDate);
+            ps.setDate(2, endDate);
+
+            ResultSet rs = ps.executeQuery();
+
+            while(rs.next()) {
+
+                appointments.add(new Appointment(
+                    rs.getInt("APPOINTMENT_ID"),
+                    rs.getInt("PATIENT_ID"),
+                    rs.getInt("DOCTOR_ID"),
+                    rs.getInt("SCHEDULE_ID"),
+                    rs.getDate("APPOINTMENT_DATE"),
+                    rs.getString("STATUS")
+                ));
+            }
+
+        } catch(Exception e) {
+
+            e.printStackTrace();
+        }
+
+        return appointments;
+    }
+
 }

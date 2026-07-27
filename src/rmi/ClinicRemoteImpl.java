@@ -15,6 +15,10 @@ import model.Consultation;
 import service.ConsultationService;
 import model.LoginData;
 import service.LoginService;
+import model.ReportRequestData;
+import service.ReportService;
+import model.DoctorSchedule;
+import service.DoctorService;
 
 public class ClinicRemoteImpl extends UnicastRemoteObject implements ClinicRemote {
 
@@ -22,6 +26,8 @@ public class ClinicRemoteImpl extends UnicastRemoteObject implements ClinicRemot
     private final PatientService patientService;
     private final ConsultationService consultationService;
     private final LoginService loginService;
+    private final ReportService reportService;
+    private final DoctorService doctorService;
 
     public ClinicRemoteImpl() throws RemoteException {
         super();
@@ -29,6 +35,8 @@ public class ClinicRemoteImpl extends UnicastRemoteObject implements ClinicRemot
         patientService = new PatientService();
         consultationService = new ConsultationService();
         loginService = new LoginService();
+        reportService = new ReportService();
+        doctorService = new DoctorService();
     }
 
     @Override
@@ -46,8 +54,12 @@ public class ClinicRemoteImpl extends UnicastRemoteObject implements ClinicRemot
         if (!Operation.LOGIN.equals(request.getOperation())
                 && !Operation.TEST_CONNECTION.equals(request.getOperation())) {
 
-            // Temporary role until real authentication is implemented.
-            String role = "DOCTOR";
+            // Temporary role lookup until real authentication is implemented.
+            // The client sends the username of the account that logged in;
+            // "admin" is treated as ADMIN, everything else defaults to DOCTOR.
+            String role = "admin".equalsIgnoreCase(request.getUsername())
+                    ? "ADMIN"
+                    : "DOCTOR";
 
             if (!Authorization.hasPermission(role, request.getOperation())) {
                 return new Response(false,
@@ -129,6 +141,94 @@ public class ClinicRemoteImpl extends UnicastRemoteObject implements ClinicRemot
                 LoginData loginData = (LoginData) request.getData();
 
                 return loginService.login(loginData);
+
+            case Operation.GET_APPOINTMENT_SUMMARY_REPORT:
+
+                if (!(request.getData() instanceof ReportRequestData)) {
+                    return new Response(false,
+                            "Invalid report request data.",
+                            null);
+                }
+
+                ReportRequestData summaryParams
+                        = (ReportRequestData) request.getData();
+
+                return reportService.generateAppointmentSummaryReport(
+                        summaryParams.getMonth(),
+                        summaryParams.getYear());
+
+            case Operation.GET_DOCTOR_ACTIVITY_REPORT:
+
+                return reportService.generateDoctorActivityReport();
+
+            case Operation.GET_PATIENT_ANALYTICS_REPORT:
+
+                return reportService.generatePatientAnalyticsReport();
+
+            case Operation.GET_APPOINTMENT_LIST:
+
+                if (!(request.getData() instanceof Integer)) {
+                    return new Response(false,
+                            "Invalid doctor ID.",
+                            null);
+                }
+
+                int doctorIdForAppointments
+                        = (Integer) request.getData();
+
+                return doctorService.getAppointmentList(doctorIdForAppointments);
+
+            case Operation.VIEW_MEDICAL_HISTORY:
+
+                if (!(request.getData() instanceof Integer)) {
+                    return new Response(false,
+                            "Invalid patient ID.",
+                            null);
+                }
+
+                int patientIdForHistory
+                        = (Integer) request.getData();
+
+                return doctorService.getPatientHistory(patientIdForHistory);
+
+            case Operation.GET_SCHEDULE:
+
+                if (!(request.getData() instanceof Integer)) {
+                    return new Response(false,
+                            "Invalid doctor ID.",
+                            null);
+                }
+
+                int doctorIdForSchedule
+                        = (Integer) request.getData();
+
+                return doctorService.getSchedule(doctorIdForSchedule);
+
+            case Operation.UPDATE_SCHEDULE:
+
+                if (!(request.getData() instanceof DoctorSchedule)) {
+                    return new Response(false,
+                            "Invalid schedule data.",
+                            null);
+                }
+
+                DoctorSchedule scheduleToUpdate
+                        = (DoctorSchedule) request.getData();
+
+                return doctorService.updateSchedule(scheduleToUpdate);
+
+            case Operation.VIEW_CONSULTATION:
+
+                if (!(request.getData() instanceof Integer)) {
+                    return new Response(false,
+                            "Invalid consultation ID.",
+                            null);
+                }
+
+                int consultationIdToView
+                        = (Integer) request.getData();
+
+                return consultationService.getConsultation(consultationIdToView);
 
             default:
                 return new Response(

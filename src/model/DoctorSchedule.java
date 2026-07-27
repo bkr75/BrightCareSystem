@@ -7,9 +7,10 @@ package model;
 
 import java.sql.Date;
 import java.sql.Time;
+import java.io.Serializable;
 
 
-public class DoctorSchedule {
+public class DoctorSchedule implements Serializable {
 
 
     private int scheduleId;

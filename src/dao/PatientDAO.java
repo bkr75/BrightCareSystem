@@ -157,5 +157,30 @@ public class PatientDAO {
         }
     }
 
+
+    // READ
+    // Count total registered patients (used for reporting)
+
+    public int getPatientCount() {
+
+        String sql = "SELECT COUNT(*) AS TOTAL FROM PATIENT";
+
+        try(Connection conn = DBConnection.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ResultSet rs = ps.executeQuery();
+
+            if(rs.next()) {
+                return rs.getInt("TOTAL");
+            }
+
+        } catch(Exception e) {
+
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
 }
 

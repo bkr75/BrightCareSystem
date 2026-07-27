@@ -4,13 +4,16 @@
  */
 package model;
 
+import java.io.Serializable;
 
-public class Consultation {
+
+public class Consultation implements Serializable {
 
 
     private int consultationId;
     private int appointmentId;
     private String consultationNotes;
+    private int version;
 
 
 
@@ -44,6 +47,22 @@ public class Consultation {
 
 
 
+    // Constructor for retrieving consultation with its optimistic-locking version
+
+    public Consultation(int consultationId,
+                        int appointmentId,
+                        String consultationNotes,
+                        int version) {
+
+
+        this.consultationId = consultationId;
+        this.appointmentId = appointmentId;
+        this.consultationNotes = consultationNotes;
+        this.version = version;
+
+    }
+
+
 
 
     public int getConsultationId() {
@@ -67,6 +86,13 @@ public class Consultation {
     }
 
 
+    public int getVersion() {
+
+        return version;
+
+    }
+
+
 
 
 
@@ -81,6 +107,13 @@ public class Consultation {
     public void setConsultationNotes(String consultationNotes) {
 
         this.consultationNotes = consultationNotes;
+
+    }
+
+
+    public void setVersion(int version) {
+
+        this.version = version;
 
     }
 

@@ -145,7 +145,9 @@ public class ConsultationDAO {
 
                     rs.getString(
                         "CONSULTATION_NOTES"
-                    )
+                    ),
+
+                    rs.getInt("VERSION")
 
 
                 );
@@ -176,6 +178,8 @@ public class ConsultationDAO {
 
     // UPDATE
     // Doctor updates consultation notes
+    // Optimistic locking: only updates if VERSION still matches what the
+    // caller last read; also bumps VERSION so the next writer detects this change.
 
 
     public boolean updateConsultation(Consultation consultation) {
@@ -184,8 +188,8 @@ public class ConsultationDAO {
 
         String sql =
         "UPDATE CONSULTATION "
-        + "SET CONSULTATION_NOTES=? "
-        + "WHERE CONSULTATION_ID=?";
+        + "SET CONSULTATION_NOTES=?, VERSION=VERSION+1 "
+        + "WHERE CONSULTATION_ID=? AND VERSION=?";
 
 
 
@@ -207,6 +211,12 @@ public class ConsultationDAO {
             ps.setInt(
                 2,
                 consultation.getConsultationId()
+            );
+
+
+            ps.setInt(
+                3,
+                consultation.getVersion()
             );
 
 
