@@ -47,4 +47,18 @@ public class PatientService {
                 "Patient not found.",
                 null);
     }
+    public Response updatePatientInfo(Patient patient) {
+
+    if (patient == null) {
+        return new Response(false, "Patient data is null.", null);
+    }
+
+    boolean success = patientDAO.updatePatient(patient);
+
+    if (success) {
+        return new Response(true, "Patient information updated successfully.", patient);
+    }
+
+    return new Response(false, "Failed to update patient information.", null);
+}
 }

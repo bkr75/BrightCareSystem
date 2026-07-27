@@ -17,6 +17,7 @@ public class Appointment implements Serializable {
     private int scheduleId;
     private Date appointmentDate;
     private String status;
+    private String doctorName; // not stored in DB — filled in by AppointmentService for display
 
 
 
@@ -85,6 +86,11 @@ public class Appointment implements Serializable {
         return doctorId;
 
     }
+    public String getDoctorName() {
+
+    return doctorName;
+
+}
 
 
     public int getScheduleId() {
@@ -125,6 +131,11 @@ public class Appointment implements Serializable {
         this.status = status;
 
     }
+    public void setDoctorName(String doctorName) {
+
+    this.doctorName = doctorName;
+
+}
 
 
 }

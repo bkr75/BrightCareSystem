@@ -57,9 +57,18 @@ public class ClinicRemoteImpl extends UnicastRemoteObject implements ClinicRemot
             // Temporary role lookup until real authentication is implemented.
             // The client sends the username of the account that logged in;
             // "admin" is treated as ADMIN, everything else defaults to DOCTOR.
-            String role = "admin".equalsIgnoreCase(request.getUsername())
-                    ? "ADMIN"
-                    : "DOCTOR";
+            String username = request.getUsername();
+String role;
+
+if ("admin".equalsIgnoreCase(username)) {
+    role = "ADMIN";
+} else if ("receptionist".equalsIgnoreCase(username)) {
+    role = "RECEPTIONIST";
+} else if ("patient".equalsIgnoreCase(username)) {
+    role = "PATIENT";
+} else {
+    role = "DOCTOR";
+}
 
             if (!Authorization.hasPermission(role, request.getOperation())) {
                 return new Response(false,
@@ -89,6 +98,45 @@ public class ClinicRemoteImpl extends UnicastRemoteObject implements ClinicRemot
                         = (Appointment) request.getData();
 
                 return appointmentService.bookAppointment(appointment);
+                case Operation.CANCEL_APPOINTMENT:
+
+    if (!(request.getData() instanceof Integer)) {
+        return new Response(false, "Invalid appointment ID.", null);
+    }
+
+    int appointmentIdToCancel = (Integer) request.getData();
+
+    return appointmentService.cancelAppointment(appointmentIdToCancel);
+
+case Operation.VIEW_APPOINTMENT_HISTORY:
+
+    if (!(request.getData() instanceof Integer)) {
+        return new Response(false, "Invalid patient ID.", null);
+    }
+
+    int patientIdForApptHistory = (Integer) request.getData();
+
+    return appointmentService.viewAppointmentHistory(patientIdForApptHistory);
+
+case Operation.CHECK_DOCTOR_AVAILABILITY:
+
+    if (!(request.getData() instanceof Integer)) {
+        return new Response(false, "Invalid doctor ID.", null);
+    }
+
+    int doctorIdForAvailability = (Integer) request.getData();
+
+    return appointmentService.checkDoctorAvailability(doctorIdForAvailability);
+
+case Operation.UPDATE_PATIENT_INFO:
+
+    if (!(request.getData() instanceof Patient)) {
+        return new Response(false, "Invalid patient data.", null);
+    }
+
+    Patient patientToUpdate = (Patient) request.getData();
+
+    return patientService.updatePatientInfo(patientToUpdate);
 
             case Operation.REGISTER_PATIENT:
 

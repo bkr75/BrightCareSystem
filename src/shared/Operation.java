@@ -8,6 +8,11 @@ public class Operation {
     public static final String BOOK_APPOINTMENT = "BOOK_APPOINTMENT";
     public static final String VIEW_PATIENT = "VIEW_PATIENT";
     public static final String UPDATE_DIAGNOSIS = "UPDATE_DIAGNOSIS";
+    // patient 
+    public static final String CANCEL_APPOINTMENT = "CANCEL_APPOINTMENT";
+public static final String VIEW_APPOINTMENT_HISTORY = "VIEW_APPOINTMENT_HISTORY";
+public static final String UPDATE_PATIENT_INFO = "UPDATE_PATIENT_INFO";
+public static final String CHECK_DOCTOR_AVAILABILITY = "CHECK_DOCTOR_AVAILABILITY";
 
     // Admin / reporting operations
     public static final String GET_APPOINTMENT_SUMMARY_REPORT = "GET_APPOINTMENT_SUMMARY_REPORT";

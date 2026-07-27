@@ -23,8 +23,15 @@ public class Authorization {
                         || operation.equals("VIEW_CONSULTATION");
 
             case "RECEPTIONIST":
+                
                 return operation.equals("REGISTER_PATIENT")
                         || operation.equals("BOOK_APPOINTMENT");
+                case "PATIENT":
+    return operation.equals("BOOK_APPOINTMENT")
+            || operation.equals("CANCEL_APPOINTMENT")
+            || operation.equals("VIEW_APPOINTMENT_HISTORY")
+            || operation.equals("UPDATE_PATIENT_INFO")
+            || operation.equals("CHECK_DOCTOR_AVAILABILITY");
 
             default:
                 return false;

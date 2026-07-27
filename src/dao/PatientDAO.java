@@ -127,35 +127,31 @@ public class PatientDAO {
 
     public boolean updatePatient(Patient patient) {
 
+    String sql =
+    "UPDATE PATIENT SET CONTACT_NUMBER=?, IC_PASSPORT=? "
+    + "WHERE PATIENT_ID=?";
 
-        String sql =
-        "UPDATE PATIENT SET CONTACT_NUMBER=? "
-        + "WHERE PATIENT_ID=?";
+    try(Connection conn = DBConnection.getConnection();
+        PreparedStatement ps =
+        conn.prepareStatement(sql)) {
 
+        ps.setString(1, patient.getContactNumber());
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement ps =
-            conn.prepareStatement(sql)) {
+        ps.setString(2, patient.getIcPassport());
 
+        ps.setInt(3, patient.getPatientId());
 
-            ps.setString(1, patient.getContactNumber());
+        int rows =
+        ps.executeUpdate();
 
-            ps.setInt(2, patient.getPatientId());
+        return rows > 0;
 
+    } catch(Exception e) {
 
-            int rows =
-            ps.executeUpdate();
-
-
-            return rows > 0;
-
-
-        } catch(Exception e) {
-
-            e.printStackTrace();
-            return false;
-        }
+        e.printStackTrace();
+        return false;
     }
+}
 
 
     // READ

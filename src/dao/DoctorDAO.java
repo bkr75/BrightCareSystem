@@ -27,7 +27,7 @@ public class DoctorDAO {
 
         String sql =
         "INSERT INTO DOCTOR "
-        + "(DOCTOR_NAME, SPECIALIZATION) "
+        + "(NAME, SPECIALIZATION) "
         + "VALUES (?, ?)";
 
 
@@ -113,7 +113,7 @@ public class DoctorDAO {
 
                     rs.getInt("DOCTOR_ID"),
 
-                    rs.getString("DOCTOR_NAME"),
+                    rs.getString("NAME"),
 
                     rs.getString("SPECIALIZATION")
 
@@ -204,7 +204,7 @@ public class DoctorDAO {
 
                 doctors.add(new Doctor(
                     rs.getInt("DOCTOR_ID"),
-                    rs.getString("DOCTOR_NAME"),
+                    rs.getString("NAME"),
                     rs.getString("SPECIALIZATION")
                 ));
             }
