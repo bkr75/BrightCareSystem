@@ -128,7 +128,7 @@ public class DoctorScheduleDAO {
 
                     rs.getDate("AVAILABLE_DATE"),
 
-                    rs.getTime("TIME_SLOT"),
+                    rs.getTime("AVAILABLE_TIME"),
 
                     rs.getString("STATUS")
 
@@ -262,7 +262,7 @@ public class DoctorScheduleDAO {
 
                     rs.getDate("AVAILABLE_DATE"),
 
-                    rs.getTime("TIME_SLOT"),
+                    rs.getTime("AVAILABLE_TIME"),
 
                     rs.getString("STATUS")
 
