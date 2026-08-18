@@ -54,21 +54,20 @@ public class ClinicRemoteImpl extends UnicastRemoteObject implements ClinicRemot
         if (!Operation.LOGIN.equals(request.getOperation())
                 && !Operation.TEST_CONNECTION.equals(request.getOperation())) {
 
-            // Temporary role lookup until real authentication is implemented.
-            // The client sends the username of the account that logged in;
-            // "admin" is treated as ADMIN, everything else defaults to DOCTOR.
+            // Look up the real role from the USERS table instead of
+            // guessing it from the username string.
             String username = request.getUsername();
-String role;
 
-if ("admin".equalsIgnoreCase(username)) {
-    role = "ADMIN";
-} else if ("receptionist".equalsIgnoreCase(username)) {
-    role = "RECEPTIONIST";
-} else if ("patient".equalsIgnoreCase(username)) {
-    role = "PATIENT";
-} else {
-    role = "DOCTOR";
-}
+            dao.UserDAO userDAO = new dao.UserDAO();
+            model.User currentUser = userDAO.getUserByUsername(username);
+
+            if (currentUser == null) {
+                return new Response(false,
+                        "Unknown user.",
+                        null);
+            }
+
+            String role = currentUser.getRole();
 
             if (!Authorization.hasPermission(role, request.getOperation())) {
                 return new Response(false,
@@ -98,45 +97,45 @@ if ("admin".equalsIgnoreCase(username)) {
                         = (Appointment) request.getData();
 
                 return appointmentService.bookAppointment(appointment);
-                case Operation.CANCEL_APPOINTMENT:
+            case Operation.CANCEL_APPOINTMENT:
 
-    if (!(request.getData() instanceof Integer)) {
-        return new Response(false, "Invalid appointment ID.", null);
-    }
+                if (!(request.getData() instanceof Integer)) {
+                    return new Response(false, "Invalid appointment ID.", null);
+                }
 
-    int appointmentIdToCancel = (Integer) request.getData();
+                int appointmentIdToCancel = (Integer) request.getData();
 
-    return appointmentService.cancelAppointment(appointmentIdToCancel);
+                return appointmentService.cancelAppointment(appointmentIdToCancel);
 
-case Operation.VIEW_APPOINTMENT_HISTORY:
+            case Operation.VIEW_APPOINTMENT_HISTORY:
 
-    if (!(request.getData() instanceof Integer)) {
-        return new Response(false, "Invalid patient ID.", null);
-    }
+                if (!(request.getData() instanceof Integer)) {
+                    return new Response(false, "Invalid patient ID.", null);
+                }
 
-    int patientIdForApptHistory = (Integer) request.getData();
+                int patientIdForApptHistory = (Integer) request.getData();
 
-    return appointmentService.viewAppointmentHistory(patientIdForApptHistory);
+                return appointmentService.viewAppointmentHistory(patientIdForApptHistory);
 
-case Operation.CHECK_DOCTOR_AVAILABILITY:
+            case Operation.CHECK_DOCTOR_AVAILABILITY:
 
-    if (!(request.getData() instanceof Integer)) {
-        return new Response(false, "Invalid doctor ID.", null);
-    }
+                if (!(request.getData() instanceof Integer)) {
+                    return new Response(false, "Invalid doctor ID.", null);
+                }
 
-    int doctorIdForAvailability = (Integer) request.getData();
+                int doctorIdForAvailability = (Integer) request.getData();
 
-    return appointmentService.checkDoctorAvailability(doctorIdForAvailability);
+                return appointmentService.checkDoctorAvailability(doctorIdForAvailability);
 
-case Operation.UPDATE_PATIENT_INFO:
+            case Operation.UPDATE_PATIENT_INFO:
 
-    if (!(request.getData() instanceof Patient)) {
-        return new Response(false, "Invalid patient data.", null);
-    }
+                if (!(request.getData() instanceof Patient)) {
+                    return new Response(false, "Invalid patient data.", null);
+                }
 
-    Patient patientToUpdate = (Patient) request.getData();
+                Patient patientToUpdate = (Patient) request.getData();
 
-    return patientService.updatePatientInfo(patientToUpdate);
+                return patientService.updatePatientInfo(patientToUpdate);
 
             case Operation.REGISTER_PATIENT:
 
@@ -277,6 +276,32 @@ case Operation.UPDATE_PATIENT_INFO:
                         = (Integer) request.getData();
 
                 return consultationService.getConsultation(consultationIdToView);
+
+            case Operation.ADD_CONSULTATION:
+
+                if (!(request.getData() instanceof Consultation)) {
+                    return new Response(false,
+                            "Invalid consultation data.",
+                            null);
+                }
+
+                Consultation newConsultation
+                        = (Consultation) request.getData();
+
+                return consultationService.addConsultation(newConsultation);
+
+            case Operation.COMPLETE_APPOINTMENT:
+
+                if (!(request.getData() instanceof Integer)) {
+                    return new Response(false,
+                            "Invalid appointment ID.",
+                            null);
+                }
+
+                int appointmentIdToComplete
+                        = (Integer) request.getData();
+
+                return appointmentService.completeAppointment(appointmentIdToComplete);
 
             default:
                 return new Response(

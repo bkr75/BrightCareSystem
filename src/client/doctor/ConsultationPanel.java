@@ -10,6 +10,10 @@ public class ConsultationPanel extends JPanel {
 
     private final DoctorServiceProxy proxy;
 
+    private final JTextField newAppointmentIdField;
+    private final JTextArea newNotesArea;
+    private final JLabel createStatusLabel;
+
     private final JTextField consultationIdField;
     private final JTextArea notesArea;
     private final JLabel versionLabel;
@@ -22,9 +26,38 @@ public class ConsultationPanel extends JPanel {
     public ConsultationPanel(DoctorServiceProxy proxy) {
 
         this.proxy = proxy;
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10, 15));
         setOpaque(false);
 
+        // ---------- New consultation (create) section ----------
+        newAppointmentIdField = DoctorTheme.createStyledTextField();
+        newNotesArea = DoctorTheme.createStyledTextArea();
+        newNotesArea.setRows(4);
+        createStatusLabel = DoctorTheme.createStatusLabel();
+        JButton createButton = DoctorTheme.createPrimaryButton("Create New Consultation");
+
+        JPanel createForm = new JPanel(new GridBagLayout());
+        createForm.setOpaque(false);
+        GridBagConstraints createGbc = DoctorTheme.defaultGbc();
+        DoctorTheme.addFormRow(createForm, createGbc, 0, "Appointment ID:", newAppointmentIdField);
+
+        createGbc.gridx = 0;
+        createGbc.gridy = 1;
+        createGbc.gridwidth = 2;
+        createForm.add(new JScrollPane(newNotesArea), createGbc);
+
+        createGbc.gridy = 2;
+        createGbc.insets = new Insets(10, 8, 5, 8);
+        createForm.add(createButton, createGbc);
+
+        createGbc.gridy = 3;
+        createForm.add(createStatusLabel, createGbc);
+
+        add(DoctorTheme.createCardPanel("New Consultation", createForm, false), BorderLayout.NORTH);
+
+        createButton.addActionListener(e -> createConsultation());
+
+        // ---------- Load / update existing consultation section ----------
         consultationIdField = DoctorTheme.createStyledTextField();
         JButton loadButton = DoctorTheme.createPrimaryButton("Load");
         versionLabel = new JLabel("(not loaded)");
@@ -70,6 +103,45 @@ public class ConsultationPanel extends JPanel {
         updateButton.addActionListener(e -> updateNotes());
     }
 
+    private void createConsultation() {
+
+        int appointmentId;
+
+        try {
+            appointmentId = Integer.parseInt(newAppointmentIdField.getText().trim());
+        } catch (NumberFormatException ex) {
+            DoctorTheme.setErrorStatus(createStatusLabel, "Please enter a valid numeric Appointment ID.");
+            return;
+        }
+
+        String notes = newNotesArea.getText().trim();
+
+        if (notes.isEmpty()) {
+            DoctorTheme.setErrorStatus(createStatusLabel, "Please enter consultation notes.");
+            return;
+        }
+
+        Consultation consultation = new Consultation(appointmentId, notes);
+
+        proxy.setRetryListener((attempt, max, backoff)
+                -> createStatusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
+
+        Response response = proxy.addConsultation(consultation);
+
+        DoctorTheme.setStatus(createStatusLabel, response);
+
+        if (response.isSuccess() && response.getData() instanceof Consultation) {
+
+            Consultation created = (Consultation) response.getData();
+
+            // Convenience: drop the new ID straight into the Load field below
+            // so the doctor can immediately load/edit what they just created.
+            consultationIdField.setText(String.valueOf(created.getConsultationId()));
+            newAppointmentIdField.setText("");
+            newNotesArea.setText("");
+        }
+    }
+
     private void loadConsultation() {
 
         int consultationId;
@@ -81,8 +153,8 @@ public class ConsultationPanel extends JPanel {
             return;
         }
 
-        proxy.setRetryListener((attempt, max, backoff) ->
-                statusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
+        proxy.setRetryListener((attempt, max, backoff)
+                -> statusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
 
         Response response = proxy.getConsultation(consultationId);
 
@@ -121,8 +193,8 @@ public class ConsultationPanel extends JPanel {
                 notes,
                 loadedConsultation.getVersion());
 
-        proxy.setRetryListener((attempt, max, backoff) ->
-                statusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
+        proxy.setRetryListener((attempt, max, backoff)
+                -> statusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
 
         Response response = proxy.updateConsultationNotes(consultation);
 

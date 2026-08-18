@@ -1,15 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
 import java.sql.Date;
 import java.io.Serializable;
 
-
 public class Appointment implements Serializable {
-
 
     private int appointmentId;
     private int patientId;
@@ -19,16 +13,12 @@ public class Appointment implements Serializable {
     private String status;
     private String doctorName; // not stored in DB — filled in by AppointmentService for display
 
-
-
     // Constructor for creating new appointment
-
     public Appointment(int patientId,
-                       int doctorId,
-                       int scheduleId,
-                       Date appointmentDate,
-                       String status) {
-
+            int doctorId,
+            int scheduleId,
+            Date appointmentDate,
+            String status) {
 
         this.patientId = patientId;
         this.doctorId = doctorId;
@@ -38,18 +28,13 @@ public class Appointment implements Serializable {
 
     }
 
-
-
-
     // Constructor for retrieving appointment
-
     public Appointment(int appointmentId,
-                       int patientId,
-                       int doctorId,
-                       int scheduleId,
-                       Date appointmentDate,
-                       String status) {
-
+            int patientId,
+            int doctorId,
+            int scheduleId,
+            Date appointmentDate,
+            String status) {
 
         this.appointmentId = appointmentId;
         this.patientId = patientId;
@@ -60,19 +45,12 @@ public class Appointment implements Serializable {
 
     }
 
-
-
-
-
     // Getters
-
-
     public int getAppointmentId() {
 
         return appointmentId;
 
     }
-
 
     public int getPatientId() {
 
@@ -80,18 +58,17 @@ public class Appointment implements Serializable {
 
     }
 
-
     public int getDoctorId() {
 
         return doctorId;
 
     }
+
     public String getDoctorName() {
 
-    return doctorName;
+        return doctorName;
 
-}
-
+    }
 
     public int getScheduleId() {
 
@@ -99,13 +76,11 @@ public class Appointment implements Serializable {
 
     }
 
-
     public Date getAppointmentDate() {
 
         return appointmentDate;
 
     }
-
 
     public String getStatus() {
 
@@ -113,29 +88,23 @@ public class Appointment implements Serializable {
 
     }
 
-
-
-
-
     // Setter
-
     public void setAppointmentId(int appointmentId) {
 
         this.appointmentId = appointmentId;
 
     }
 
-
     public void setStatus(String status) {
 
         this.status = status;
 
     }
+
     public void setDoctorName(String doctorName) {
 
-    this.doctorName = doctorName;
+        this.doctorName = doctorName;
 
-}
-
+    }
 
 }

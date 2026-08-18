@@ -20,18 +20,20 @@ public class Authorization {
                         || operation.equals("VIEW_MEDICAL_HISTORY")
                         || operation.equals("GET_SCHEDULE")
                         || operation.equals("UPDATE_SCHEDULE")
-                        || operation.equals("VIEW_CONSULTATION");
+                        || operation.equals("VIEW_CONSULTATION")
+                        || operation.equals("ADD_CONSULTATION")
+                        || operation.equals("COMPLETE_APPOINTMENT");
 
             case "RECEPTIONIST":
-                
+
                 return operation.equals("REGISTER_PATIENT")
                         || operation.equals("BOOK_APPOINTMENT");
-                case "PATIENT":
-    return operation.equals("BOOK_APPOINTMENT")
-            || operation.equals("CANCEL_APPOINTMENT")
-            || operation.equals("VIEW_APPOINTMENT_HISTORY")
-            || operation.equals("UPDATE_PATIENT_INFO")
-            || operation.equals("CHECK_DOCTOR_AVAILABILITY");
+            case "PATIENT":
+                return operation.equals("BOOK_APPOINTMENT")
+                        || operation.equals("CANCEL_APPOINTMENT")
+                        || operation.equals("VIEW_APPOINTMENT_HISTORY")
+                        || operation.equals("UPDATE_PATIENT_INFO")
+                        || operation.equals("CHECK_DOCTOR_AVAILABILITY");
 
             default:
                 return false;

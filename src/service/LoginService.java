@@ -1,6 +1,7 @@
 package service;
 
 import model.LoginData;
+import model.User;
 import security.Authentication;
 import shared.Response;
 
@@ -14,22 +15,24 @@ public class LoginService {
                     null);
         }
 
-        if (loginData.getUsername() == null ||
-            loginData.getPassword() == null) {
+        if (loginData.getUsername() == null
+                || loginData.getPassword() == null) {
 
             return new Response(false,
                     "Username or password is missing.",
                     null);
         }
 
-        boolean success = Authentication.login(
+        User user = Authentication.login(
                 loginData.getUsername(),
                 loginData.getPassword());
 
-        if (success) {
+        if (user != null) {
+            // data now carries the role, so the client knows which
+            // menu/module to open, and ClinicRemoteImpl can trust it.
             return new Response(true,
                     "Login successful.",
-                    null);
+                    user.getRole());
         }
 
         return new Response(false,

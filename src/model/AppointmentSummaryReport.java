@@ -14,10 +14,10 @@ public class AppointmentSummaryReport implements Serializable {
     private int pendingCount;
 
     public AppointmentSummaryReport(int month, int year,
-                                     int totalAppointments,
-                                     int completedCount,
-                                     int cancelledCount,
-                                     int pendingCount) {
+            int totalAppointments,
+            int completedCount,
+            int cancelledCount,
+            int pendingCount) {
 
         this.month = month;
         this.year = year;

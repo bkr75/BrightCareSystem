@@ -126,8 +126,8 @@ public class AdminClient {
                 return;
             }
 
-            AppointmentSummaryReport report =
-                    (AppointmentSummaryReport) response.getData();
+            AppointmentSummaryReport report
+                    = (AppointmentSummaryReport) response.getData();
 
             System.out.println();
             System.out.println("--- Appointment Summary (" + report.getMonth()
@@ -160,8 +160,8 @@ public class AdminClient {
                 return;
             }
 
-            List<DoctorActivityReport> reports =
-                    (List<DoctorActivityReport>) response.getData();
+            List<DoctorActivityReport> reports
+                    = (List<DoctorActivityReport>) response.getData();
 
             System.out.println();
             System.out.println("--- Doctor Activity Report ---");
@@ -197,8 +197,8 @@ public class AdminClient {
                 return;
             }
 
-            PatientAnalyticsReport report =
-                    (PatientAnalyticsReport) response.getData();
+            PatientAnalyticsReport report
+                    = (PatientAnalyticsReport) response.getData();
 
             System.out.println();
             System.out.println("--- Patient Analytics Report ---");

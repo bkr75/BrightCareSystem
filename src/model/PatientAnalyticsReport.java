@@ -11,8 +11,8 @@ public class PatientAnalyticsReport implements Serializable {
     private double averageAppointmentsPerPatient;
 
     public PatientAnalyticsReport(int totalPatients,
-                                   int totalAppointments,
-                                   double averageAppointmentsPerPatient) {
+            int totalAppointments,
+            double averageAppointmentsPerPatient) {
 
         this.totalPatients = totalPatients;
         this.totalAppointments = totalAppointments;

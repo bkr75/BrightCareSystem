@@ -127,7 +127,6 @@ public class PatientMainFrame extends JFrame {
     }
 
     // ---------- Tab 1: Book Appointment ----------
-
     private JPanel buildBookAppointmentTab() {
         JTextField patientIdField = createStyledTextField();
         JTextField doctorIdField = createStyledTextField();
@@ -178,7 +177,6 @@ public class PatientMainFrame extends JFrame {
     }
 
     // ---------- Tab 2: Cancel Appointment ----------
-
     private JPanel buildCancelAppointmentTab() {
         JTextField appointmentIdField = createStyledTextField();
         JLabel statusLabel = createStatusLabel();
@@ -214,7 +212,6 @@ public class PatientMainFrame extends JFrame {
     }
 
     // ---------- Tab 3: View Appointment History ----------
-
     @SuppressWarnings("unchecked")
     private JPanel buildViewHistoryTab() {
         JTextField patientIdField = createStyledTextField();
@@ -244,38 +241,38 @@ public class PatientMainFrame extends JFrame {
         gbc.insets = new Insets(5, 8, 5, 8);
         formPanel.add(statusLabel, gbc);
 
-       viewButton.addActionListener(e -> {
-    tableModel.setRowCount(0);
-    try {
-        int patientId = Integer.parseInt(patientIdField.getText().trim());
+        viewButton.addActionListener(e -> {
+            tableModel.setRowCount(0);
+            try {
+                int patientId = Integer.parseInt(patientIdField.getText().trim());
 
-        Request request = new Request(Operation.VIEW_APPOINTMENT_HISTORY, patientId, "patient");
-        Response response = clinic.processRequest(request);
+                Request request = new Request(Operation.VIEW_APPOINTMENT_HISTORY, patientId, "patient");
+                Response response = clinic.processRequest(request);
 
-        if (response.isSuccess() && response.getData() instanceof List) {
-            List<Appointment> appointments = (List<Appointment>) response.getData();
+                if (response.isSuccess() && response.getData() instanceof List) {
+                    List<Appointment> appointments = (List<Appointment>) response.getData();
 
-            if (appointments.isEmpty()) {
-                statusLabel.setForeground(ERROR_COLOR);
-                statusLabel.setText("⚠ No appointment history found for Patient ID: " + patientId);
-            } else {
-                setStatus(statusLabel, response);
-                for (Appointment a : appointments) {
-                    tableModel.addRow(new Object[]{
-                            a.getAppointmentId(),
-                            a.getDoctorName(),
-                            a.getAppointmentDate(),
-                            a.getStatus()
-                    });
+                    if (appointments.isEmpty()) {
+                        statusLabel.setForeground(ERROR_COLOR);
+                        statusLabel.setText("⚠ No appointment history found for Patient ID: " + patientId);
+                    } else {
+                        setStatus(statusLabel, response);
+                        for (Appointment a : appointments) {
+                            tableModel.addRow(new Object[]{
+                                a.getAppointmentId(),
+                                a.getDoctorName(),
+                                a.getAppointmentDate(),
+                                a.getStatus()
+                            });
+                        }
+                    }
+                } else {
+                    setStatus(statusLabel, response);
                 }
+            } catch (Exception ex) {
+                setErrorStatus(statusLabel, "Error retrieving history: " + ex.getMessage());
             }
-        } else {
-            setStatus(statusLabel, response);
-        }
-    } catch (Exception ex) {
-        setErrorStatus(statusLabel, "Error retrieving history: " + ex.getMessage());
-    }
-});
+        });
 
         JPanel content = new JPanel(new BorderLayout(10, 15));
         content.setOpaque(false);
@@ -286,7 +283,6 @@ public class PatientMainFrame extends JFrame {
     }
 
     // ---------- Tab 4: Update Personal Information ----------
-
     private JPanel buildUpdateInfoTab() {
         JTextField patientIdField = createStyledTextField();
         JTextField contactNumberField = createStyledTextField();
@@ -331,7 +327,6 @@ public class PatientMainFrame extends JFrame {
     }
 
     // ---------- Tab 5: Check Doctor Availability ----------
-
     @SuppressWarnings("unchecked")
     private JPanel buildCheckAvailabilityTab() {
         JTextField doctorIdField = createStyledTextField();
@@ -362,38 +357,38 @@ public class PatientMainFrame extends JFrame {
         formPanel.add(statusLabel, gbc);
 
         checkButton.addActionListener(e -> {
-    tableModel.setRowCount(0); // Clear existing rows
-    try {
-        int doctorId = Integer.parseInt(doctorIdField.getText().trim());
+            tableModel.setRowCount(0); // Clear existing rows
+            try {
+                int doctorId = Integer.parseInt(doctorIdField.getText().trim());
 
-        Request request = new Request(Operation.CHECK_DOCTOR_AVAILABILITY, doctorId, "patient");
-        Response response = clinic.processRequest(request);
+                Request request = new Request(Operation.CHECK_DOCTOR_AVAILABILITY, doctorId, "patient");
+                Response response = clinic.processRequest(request);
 
-        if (response.isSuccess() && response.getData() instanceof List) {
-            List<DoctorSchedule> schedules = (List<DoctorSchedule>) response.getData();
+                if (response.isSuccess() && response.getData() instanceof List) {
+                    List<DoctorSchedule> schedules = (List<DoctorSchedule>) response.getData();
 
-            if (schedules.isEmpty()) {
-                // Show clear warning if no schedules are found
-                statusLabel.setForeground(ERROR_COLOR);
-                statusLabel.setText("⚠ No availability records found for Doctor ID: " + doctorId);
-            } else {
-                setStatus(statusLabel, response);
-                for (DoctorSchedule s : schedules) {
-                    tableModel.addRow(new Object[]{
-                            s.getScheduleId(),
-                            s.getAvailableDate(),
-                            s.getAvailableTime(),
-                            s.getStatus()
-                    });
+                    if (schedules.isEmpty()) {
+                        // Show clear warning if no schedules are found
+                        statusLabel.setForeground(ERROR_COLOR);
+                        statusLabel.setText("⚠ No availability records found for Doctor ID: " + doctorId);
+                    } else {
+                        setStatus(statusLabel, response);
+                        for (DoctorSchedule s : schedules) {
+                            tableModel.addRow(new Object[]{
+                                s.getScheduleId(),
+                                s.getAvailableDate(),
+                                s.getAvailableTime(),
+                                s.getStatus()
+                            });
+                        }
+                    }
+                } else {
+                    setStatus(statusLabel, response);
                 }
+            } catch (Exception ex) {
+                setErrorStatus(statusLabel, "Error checking availability: " + ex.getMessage());
             }
-        } else {
-            setStatus(statusLabel, response);
-        }
-    } catch (Exception ex) {
-        setErrorStatus(statusLabel, "Error checking availability: " + ex.getMessage());
-    }
-});
+        });
 
         JPanel content = new JPanel(new BorderLayout(10, 15));
         content.setOpaque(false);
@@ -404,7 +399,6 @@ public class PatientMainFrame extends JFrame {
     }
 
     // ---------- UI Helper Factory Methods ----------
-
     private JTextField createStyledTextField() {
         JTextField field = new JTextField(18);
         field.setFont(FONT_INPUT);
@@ -518,7 +512,7 @@ public class PatientMainFrame extends JFrame {
         JPanel outer = new JPanel(new BorderLayout());
         outer.setBackground(BG_COLOR);
         outer.setBorder(new EmptyBorder(10, 10, 10, 10));
-        
+
         if (fillSpace) {
             outer.add(card, BorderLayout.CENTER);
         } else {

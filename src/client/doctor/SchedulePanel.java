@@ -55,7 +55,11 @@ public class SchedulePanel extends JPanel {
 
         JPanel updateRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         updateRow.setOpaque(false);
-        updateRow.add(new JLabel("New status for selected row:") {{ setFont(DoctorTheme.FONT_LABEL); }});
+        updateRow.add(new JLabel("New status for selected row:") {
+            {
+                setFont(DoctorTheme.FONT_LABEL);
+            }
+        });
         updateRow.add(statusCombo);
         updateRow.add(updateButton);
 
@@ -91,8 +95,8 @@ public class SchedulePanel extends JPanel {
             return;
         }
 
-        proxy.setRetryListener((attempt, max, backoff) ->
-                statusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
+        proxy.setRetryListener((attempt, max, backoff)
+                -> statusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
 
         Response response = proxy.getSchedule(doctorId);
 
@@ -112,11 +116,11 @@ public class SchedulePanel extends JPanel {
                 DoctorTheme.setStatus(statusLabel, response);
                 for (DoctorSchedule schedule : schedules) {
                     tableModel.addRow(new Object[]{
-                            schedule.getScheduleId(),
-                            schedule.getDoctorId(),
-                            schedule.getAvailableDate(),
-                            schedule.getAvailableTime(),
-                            schedule.getStatus()
+                        schedule.getScheduleId(),
+                        schedule.getDoctorId(),
+                        schedule.getAvailableDate(),
+                        schedule.getAvailableTime(),
+                        schedule.getStatus()
                     });
                 }
             }
@@ -145,8 +149,8 @@ public class SchedulePanel extends JPanel {
                 newStatus
         );
 
-        proxy.setRetryListener((attempt, max, backoff) ->
-                statusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
+        proxy.setRetryListener((attempt, max, backoff)
+                -> statusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
 
         Response response = proxy.updateSchedule(updated);
 
@@ -165,11 +169,11 @@ public class SchedulePanel extends JPanel {
                 currentSchedules = schedules;
                 for (DoctorSchedule schedule : schedules) {
                     tableModel.addRow(new Object[]{
-                            schedule.getScheduleId(),
-                            schedule.getDoctorId(),
-                            schedule.getAvailableDate(),
-                            schedule.getAvailableTime(),
-                            schedule.getStatus()
+                        schedule.getScheduleId(),
+                        schedule.getDoctorId(),
+                        schedule.getAvailableDate(),
+                        schedule.getAvailableTime(),
+                        schedule.getStatus()
                     });
                 }
             }

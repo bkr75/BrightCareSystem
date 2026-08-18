@@ -41,6 +41,7 @@ public class DoctorServiceProxy {
     // Optional listener the GUI can register to show connection status
     // while a retry is in progress ("Reconnecting... attempt 2/3").
     public interface RetryListener {
+
         void onRetry(int attempt, int maxAttempts, long backoffMillis);
     }
 
@@ -56,18 +57,18 @@ public class DoctorServiceProxy {
     // actually came back from the server (even success=false) is never
     // retried - that's a real answer, not a fault.
     public Response send(Request request) {
-
+        request.setUsername("doctor");
         long backoff = INITIAL_BACKOFF_MS;
 
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
 
             try {
 
-                Registry registry =
-                        LocateRegistry.getRegistry(serverHost, serverPort);
+                Registry registry
+                        = LocateRegistry.getRegistry(serverHost, serverPort);
 
-                ClinicRemote clinic =
-                        (ClinicRemote) registry.lookup(SERVICE_NAME);
+                ClinicRemote clinic
+                        = (ClinicRemote) registry.lookup(SERVICE_NAME);
 
                 return clinic.processRequest(request);
 
@@ -78,7 +79,7 @@ public class DoctorServiceProxy {
                 if (lastAttempt) {
                     return new Response(false,
                             "Could not reach the server after " + MAX_ATTEMPTS
-                                    + " attempts: " + e.getMessage(),
+                            + " attempts: " + e.getMessage(),
                             null);
                 }
 
@@ -139,5 +140,13 @@ public class DoctorServiceProxy {
 
     public Response updateConsultationNotes(Consultation consultation) {
         return send(new Request(Operation.UPDATE_DIAGNOSIS, consultation, username));
+    }
+
+    public Response addConsultation(Consultation consultation) {
+        return send(new Request(Operation.ADD_CONSULTATION, consultation));
+    }
+
+    public Response completeAppointment(int appointmentId) {
+        return send(new Request(Operation.COMPLETE_APPOINTMENT, appointmentId));
     }
 }

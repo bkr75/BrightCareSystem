@@ -12,8 +12,8 @@ public class DoctorActivityReport implements Serializable {
     private int totalAppointments;
 
     public DoctorActivityReport(int doctorId, String doctorName,
-                                 String specialization,
-                                 int totalAppointments) {
+            String specialization,
+            int totalAppointments) {
 
         this.doctorId = doctorId;
         this.doctorName = doctorName;

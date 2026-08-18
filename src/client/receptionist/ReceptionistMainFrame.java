@@ -16,8 +16,8 @@ import shared.Request;
 import shared.Response;
 
 /**
- * GUI entry point for the Receptionist role (single-file version).
- * Redesigned with modern medical center theme matching PatientMainFrame.
+ * GUI entry point for the Receptionist role (single-file version). Redesigned
+ * with modern medical center theme matching PatientMainFrame.
  */
 public class ReceptionistMainFrame extends JFrame {
 
@@ -187,7 +187,6 @@ public class ReceptionistMainFrame extends JFrame {
     }
 
     // ---------- UI Helper Factory Methods ----------
-
     private JTextField createStyledTextField() {
         JTextField field = new JTextField(20);
         field.setFont(FONT_INPUT);
@@ -264,7 +263,6 @@ public class ReceptionistMainFrame extends JFrame {
     }
 
     // ---------- Event Handlers ----------
-
     private void onRegister() {
         String firstName = firstNameField.getText().trim();
         String lastName = lastNameField.getText().trim();

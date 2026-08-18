@@ -24,8 +24,8 @@ public class DoctorService {
 
     public Response getAppointmentList(int doctorId) {
 
-        List<Appointment> appointments =
-                appointmentDAO.getAppointmentsByDoctor(doctorId);
+        List<Appointment> appointments
+                = appointmentDAO.getAppointmentsByDoctor(doctorId);
 
         return new Response(true,
                 "Appointment list retrieved.",
@@ -34,8 +34,8 @@ public class DoctorService {
 
     public Response getPatientHistory(int patientId) {
 
-        List<MedicalRecord> records =
-                medicalRecordDAO.getMedicalRecordsByPatientId(patientId);
+        List<MedicalRecord> records
+                = medicalRecordDAO.getMedicalRecordsByPatientId(patientId);
 
         return new Response(true,
                 "Patient history retrieved.",
@@ -44,8 +44,11 @@ public class DoctorService {
 
     public Response getSchedule(int doctorId) {
 
-        List<DoctorSchedule> schedule =
-                doctorScheduleDAO.getAvailableSchedules(doctorId);
+        // The doctor needs to see their FULL schedule (available AND
+        // booked slots), not just the available ones - otherwise a slot
+        // disappears from their own view the moment it gets booked.
+        List<DoctorSchedule> schedule
+                = doctorScheduleDAO.getAllSchedulesByDoctor(doctorId);
 
         return new Response(true,
                 "Schedule retrieved.",
@@ -60,8 +63,8 @@ public class DoctorService {
                     null);
         }
 
-        boolean success =
-                doctorScheduleDAO.updateScheduleStatus(
+        boolean success
+                = doctorScheduleDAO.updateScheduleStatus(
                         schedule.getScheduleId(),
                         schedule.getStatus());
 
