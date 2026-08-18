@@ -12,24 +12,34 @@ public class AppointmentListPanel extends JPanel {
 
     private final DoctorServiceProxy proxy;
 
+    private final JTextField doctorIdField;
+    private final JLabel statusLabel;
+    private final DefaultTableModel tableModel;
+    private final JTable table;
+
+    // Remembers the last doctor ID a search was run for, so we can refresh
+    // the table after completing an appointment without asking again.
+    private int lastLoadedDoctorId = -1;
+
     public AppointmentListPanel(DoctorServiceProxy proxy) {
 
         this.proxy = proxy;
         setLayout(new BorderLayout());
         setOpaque(false);
 
-        JTextField doctorIdField = DoctorTheme.createStyledTextField();
-        JLabel statusLabel = DoctorTheme.createStatusLabel();
+        doctorIdField = DoctorTheme.createStyledTextField();
+        statusLabel = DoctorTheme.createStatusLabel();
         JButton loadButton = DoctorTheme.createPrimaryButton("Load Appointments");
+        JButton completeButton = DoctorTheme.createSecondaryButton("Mark Selected as Completed");
 
-        DefaultTableModel tableModel = new DefaultTableModel(
+        tableModel = new DefaultTableModel(
                 new Object[]{"Appointment ID", "Patient ID", "Schedule ID", "Date", "Status"}, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
-        JTable table = DoctorTheme.createStyledTable(tableModel);
+        table = DoctorTheme.createStyledTable(tableModel);
 
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setOpaque(false);
@@ -41,11 +51,17 @@ public class AppointmentListPanel extends JPanel {
         gbc.insets = new Insets(10, 8, 5, 8);
         formPanel.add(loadButton, gbc);
 
+        gbc.gridx = 0;
         gbc.gridy = 2;
+        gbc.gridwidth = 2;
         gbc.insets = new Insets(5, 8, 5, 8);
+        formPanel.add(completeButton, gbc);
+
+        gbc.gridy = 3;
         formPanel.add(statusLabel, gbc);
 
-        loadButton.addActionListener(e -> loadAppointments(doctorIdField, tableModel, statusLabel));
+        loadButton.addActionListener(e -> loadAppointments());
+        completeButton.addActionListener(e -> completeSelected());
 
         JPanel content = new JPanel(new BorderLayout(10, 15));
         content.setOpaque(false);
@@ -55,7 +71,7 @@ public class AppointmentListPanel extends JPanel {
         add(DoctorTheme.createCardPanel("Doctor Appointment List", content, true), BorderLayout.CENTER);
     }
 
-    private void loadAppointments(JTextField doctorIdField, DefaultTableModel tableModel, JLabel statusLabel) {
+    private void loadAppointments() {
 
         int doctorId;
 
@@ -66,8 +82,10 @@ public class AppointmentListPanel extends JPanel {
             return;
         }
 
-        proxy.setRetryListener((attempt, max, backoff) ->
-                statusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
+        lastLoadedDoctorId = doctorId;
+
+        proxy.setRetryListener((attempt, max, backoff)
+                -> statusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
 
         Response response = proxy.getAppointmentList(doctorId);
 
@@ -84,16 +102,41 @@ public class AppointmentListPanel extends JPanel {
                 DoctorTheme.setStatus(statusLabel, response);
                 for (Appointment appointment : appointments) {
                     tableModel.addRow(new Object[]{
-                            appointment.getAppointmentId(),
-                            appointment.getPatientId(),
-                            appointment.getScheduleId(),
-                            appointment.getAppointmentDate(),
-                            appointment.getStatus()
+                        appointment.getAppointmentId(),
+                        appointment.getPatientId(),
+                        appointment.getScheduleId(),
+                        appointment.getAppointmentDate(),
+                        appointment.getStatus()
                     });
                 }
             }
         } else {
             DoctorTheme.setStatus(statusLabel, response);
+        }
+    }
+
+    private void completeSelected() {
+
+        int selectedRow = table.getSelectedRow();
+
+        if (selectedRow < 0) {
+            DoctorTheme.setErrorStatus(statusLabel, "Please select an appointment row first.");
+            return;
+        }
+
+        int appointmentId = (Integer) tableModel.getValueAt(selectedRow, 0);
+
+        proxy.setRetryListener((attempt, max, backoff)
+                -> statusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
+
+        Response response = proxy.completeAppointment(appointmentId);
+
+        DoctorTheme.setStatus(statusLabel, response);
+
+        if (response.isSuccess() && lastLoadedDoctorId > 0) {
+            // Refresh the table so the updated status is visible immediately.
+            doctorIdField.setText(String.valueOf(lastLoadedDoctorId));
+            loadAppointments();
         }
     }
 }

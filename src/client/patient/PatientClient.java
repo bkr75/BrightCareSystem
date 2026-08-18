@@ -17,13 +17,12 @@ import shared.Response;
 /**
  * Command-Line client for the Patient role.
  *
- * Features covered: Book Appointment, Cancel Appointment,
- * View Appointment History, Update Personal Information,
- * Check Doctor Availability.
+ * Features covered: Book Appointment, Cancel Appointment, View Appointment
+ * History, Update Personal Information, Check Doctor Availability.
  *
  * Talks to the server only through ClinicRemote.processRequest(Request),
- * following the same Request/Response/Operation pattern used across the
- * whole system (see rmi.ClinicRemoteImpl).
+ * following the same Request/Response/Operation pattern used across the whole
+ * system (see rmi.ClinicRemoteImpl).
  */
 public class PatientClient {
 
@@ -174,12 +173,12 @@ public class PatientClient {
                 }
 
                 for (Appointment a : appointments) {
-    System.out.println(
-            "Appointment #" + a.getAppointmentId()
-            + " | Doctor: " + a.getDoctorName()
-            + " | Date: " + a.getAppointmentDate()
-            + " | Status: " + a.getStatus());
-}
+                    System.out.println(
+                            "Appointment #" + a.getAppointmentId()
+                            + " | Doctor: " + a.getDoctorName()
+                            + " | Date: " + a.getAppointmentDate()
+                            + " | Status: " + a.getStatus());
+                }
             }
 
         } catch (Exception e) {
@@ -189,38 +188,38 @@ public class PatientClient {
 
     private static void updatePersonalInfo() {
 
-    try {
-        System.out.println("\n--- Update Personal Information ---");
+        try {
+            System.out.println("\n--- Update Personal Information ---");
 
-        System.out.print("Patient ID: ");
-        int patientId = Integer.parseInt(sc.nextLine().trim());
+            System.out.print("Patient ID: ");
+            int patientId = Integer.parseInt(sc.nextLine().trim());
 
-        System.out.print("New Contact Number: ");
-        String contactNumber = sc.nextLine().trim();
+            System.out.print("New Contact Number: ");
+            String contactNumber = sc.nextLine().trim();
 
-        System.out.print("New IC/Passport Number: ");
-        String icPassport = sc.nextLine().trim();
+            System.out.print("New IC/Passport Number: ");
+            String icPassport = sc.nextLine().trim();
 
-        // Only contactNumber and icPassport are used by PatientDAO.updatePatient(...)
-        Patient patient = new Patient(
-                patientId,
-                "",
-                "",
-                icPassport,
-                contactNumber,
-                ""
-        );
+            // Only contactNumber and icPassport are used by PatientDAO.updatePatient(...)
+            Patient patient = new Patient(
+                    patientId,
+                    "",
+                    "",
+                    icPassport,
+                    contactNumber,
+                    ""
+            );
 
-        Request request = new Request(Operation.UPDATE_PATIENT_INFO, patient, "patient");
-        Response response = clinic.processRequest(request);
+            Request request = new Request(Operation.UPDATE_PATIENT_INFO, patient, "patient");
+            Response response = clinic.processRequest(request);
 
-       // System.out.println("Success : " + response.isSuccess());
-        System.out.println( response.getMessage());
+            // System.out.println("Success : " + response.isSuccess());
+            System.out.println(response.getMessage());
 
-    } catch (Exception e) {
-        System.out.println("Error updating patient info: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Error updating patient info: " + e.getMessage());
+        }
     }
-}
 
     @SuppressWarnings("unchecked")
     private static void checkDoctorAvailability() {

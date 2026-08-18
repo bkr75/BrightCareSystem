@@ -22,7 +22,7 @@ public class ClinicClient {
 
             LoginData loginData = new LoginData(
                     "admin",
-                    "1111"
+                    "1234"
             );
 
             Request request = new Request(

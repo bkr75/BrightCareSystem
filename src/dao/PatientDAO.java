@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dao;
 
 import database.DBConnection;
@@ -12,26 +8,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-
 public class PatientDAO {
-
 
     // CREATE
     // Register new patient
-
     public boolean registerPatient(Patient patient) {
 
+        String sql
+                = "INSERT INTO PATIENT "
+                + "(FIRST_NAME, LAST_NAME, IC_PASSPORT, CONTACT_NUMBER, MEDICAL_RECORD_ID) "
+                + "VALUES (?, ?, ?, ?, ?)";
 
-        String sql =
-        "INSERT INTO PATIENT "
-        + "(FIRST_NAME, LAST_NAME, IC_PASSPORT, CONTACT_NUMBER, MEDICAL_RECORD_ID) "
-        + "VALUES (?, ?, ?, ?, ?)";
-
-
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement ps =
-            conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps
+                = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, patient.getFirstName());
             ps.setString(2, patient.getLastName());
@@ -39,138 +28,105 @@ public class PatientDAO {
             ps.setString(4, patient.getContactNumber());
             ps.setString(5, patient.getMedicalRecordId());
 
-
             ps.executeUpdate();
 
-
             // Retrieve generated patient ID
-
             ResultSet rs = ps.getGeneratedKeys();
 
-            if(rs.next()) {
+            if (rs.next()) {
 
                 patient.setPatientId(
-                    rs.getInt(1)
+                        rs.getInt(1)
                 );
             }
 
-
             return true;
 
-
-        } catch(Exception e) {
+        } catch (Exception e) {
 
             e.printStackTrace();
             return false;
         }
     }
 
-
-
-
     // READ
     // Retrieve patient using ID
-
     public Patient getPatientById(int patientId) {
 
+        String sql
+                = "SELECT * FROM PATIENT WHERE PATIENT_ID=?";
 
-        String sql =
-        "SELECT * FROM PATIENT WHERE PATIENT_ID=?";
-
-
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement ps =
-            conn.prepareStatement(sql)) {
-
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps
+                = conn.prepareStatement(sql)) {
 
             ps.setInt(1, patientId);
 
-
             ResultSet rs = ps.executeQuery();
 
-
-            if(rs.next()) {
-
+            if (rs.next()) {
 
                 return new Patient(
-
-                    rs.getInt("PATIENT_ID"),
-
-                    rs.getString("FIRST_NAME"),
-
-                    rs.getString("LAST_NAME"),
-
-                    rs.getString("IC_PASSPORT"),
-
-                    rs.getString("CONTACT_NUMBER"),
-
-                    rs.getString("MEDICAL_RECORD_ID")
-
+                        rs.getInt("PATIENT_ID"),
+                        rs.getString("FIRST_NAME"),
+                        rs.getString("LAST_NAME"),
+                        rs.getString("IC_PASSPORT"),
+                        rs.getString("CONTACT_NUMBER"),
+                        rs.getString("MEDICAL_RECORD_ID")
                 );
             }
 
-
-        } catch(Exception e) {
+        } catch (Exception e) {
 
             e.printStackTrace();
         }
 
-
         return null;
     }
 
-
-
-
     // UPDATE
     // Update patient contact information
-
     public boolean updatePatient(Patient patient) {
 
-    String sql =
-    "UPDATE PATIENT SET CONTACT_NUMBER=?, IC_PASSPORT=? "
-    + "WHERE PATIENT_ID=?";
+        String sql
+                = "UPDATE PATIENT SET CONTACT_NUMBER=?, IC_PASSPORT=? "
+                + "WHERE PATIENT_ID=?";
 
-    try(Connection conn = DBConnection.getConnection();
-        PreparedStatement ps =
-        conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps
+                = conn.prepareStatement(sql)) {
 
-        ps.setString(1, patient.getContactNumber());
+            ps.setString(1, patient.getContactNumber());
 
-        ps.setString(2, patient.getIcPassport());
+            ps.setString(2, patient.getIcPassport());
 
-        ps.setInt(3, patient.getPatientId());
+            ps.setInt(3, patient.getPatientId());
 
-        int rows =
-        ps.executeUpdate();
+            int rows
+                    = ps.executeUpdate();
 
-        return rows > 0;
+            return rows > 0;
 
-    } catch(Exception e) {
+        } catch (Exception e) {
 
-        e.printStackTrace();
-        return false;
+            e.printStackTrace();
+            return false;
+        }
     }
-}
-
 
     // READ
     // Count total registered patients (used for reporting)
-
     public int getPatientCount() {
 
         String sql = "SELECT COUNT(*) AS TOTAL FROM PATIENT";
 
-        try(Connection conn = DBConnection.getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBConnection.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ResultSet rs = ps.executeQuery();
 
-            if(rs.next()) {
+            if (rs.next()) {
                 return rs.getInt("TOTAL");
             }
 
-        } catch(Exception e) {
+        } catch (Exception e) {
 
             e.printStackTrace();
         }
@@ -179,4 +135,3 @@ public class PatientDAO {
     }
 
 }
-

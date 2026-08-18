@@ -1,4 +1,5 @@
 package client.receptionist;
+
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Scanner;
@@ -7,18 +8,21 @@ import rmi.ClinicRemote;
 import shared.Operation;
 import shared.Request;
 import shared.Response;
+
 /**
  * Command-Line client for the Receptionist role.
  *
  * Feature covered: Patient Registration.
  *
  * Talks to the server only through ClinicRemote.processRequest(Request),
- * following the same Request/Response/Operation pattern used across the
- * whole system (see rmi.ClinicRemoteImpl).
+ * following the same Request/Response/Operation pattern used across the whole
+ * system (see rmi.ClinicRemoteImpl).
  */
 public class ReceptionistClient {
+
     private static ClinicRemote clinic;
     private static final Scanner sc = new Scanner(System.in);
+
     public static void main(String[] args) {
         try {
             Registry registry = LocateRegistry.getRegistry("localhost", 1099);
@@ -30,6 +34,7 @@ public class ReceptionistClient {
             e.printStackTrace();
         }
     }
+
     private static void showMenu() {
         boolean running = true;
         while (running) {
@@ -51,6 +56,7 @@ public class ReceptionistClient {
             }
         }
     }
+
     private static void registerPatient() {
         try {
             System.out.println("\n--- Register New Patient ---");

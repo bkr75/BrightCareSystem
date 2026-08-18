@@ -17,8 +17,6 @@ public class RMIServer {
 
             System.out.println("==================================");
             System.out.println("BrightCare RMI Server Started");
-            System.out.println("Port : 1099");
-            System.out.println("Service : ClinicService");
             System.out.println("==================================");
 
         } catch (Exception e) {

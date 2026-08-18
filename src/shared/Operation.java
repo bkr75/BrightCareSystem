@@ -10,9 +10,9 @@ public class Operation {
     public static final String UPDATE_DIAGNOSIS = "UPDATE_DIAGNOSIS";
     // patient 
     public static final String CANCEL_APPOINTMENT = "CANCEL_APPOINTMENT";
-public static final String VIEW_APPOINTMENT_HISTORY = "VIEW_APPOINTMENT_HISTORY";
-public static final String UPDATE_PATIENT_INFO = "UPDATE_PATIENT_INFO";
-public static final String CHECK_DOCTOR_AVAILABILITY = "CHECK_DOCTOR_AVAILABILITY";
+    public static final String VIEW_APPOINTMENT_HISTORY = "VIEW_APPOINTMENT_HISTORY";
+    public static final String UPDATE_PATIENT_INFO = "UPDATE_PATIENT_INFO";
+    public static final String CHECK_DOCTOR_AVAILABILITY = "CHECK_DOCTOR_AVAILABILITY";
 
     // Admin / reporting operations
     public static final String GET_APPOINTMENT_SUMMARY_REPORT = "GET_APPOINTMENT_SUMMARY_REPORT";
@@ -25,6 +25,8 @@ public static final String CHECK_DOCTOR_AVAILABILITY = "CHECK_DOCTOR_AVAILABILIT
     public static final String GET_SCHEDULE = "GET_SCHEDULE";
     public static final String UPDATE_SCHEDULE = "UPDATE_SCHEDULE";
     public static final String VIEW_CONSULTATION = "VIEW_CONSULTATION";
+    public static final String ADD_CONSULTATION = "ADD_CONSULTATION";
+    public static final String COMPLETE_APPOINTMENT = "COMPLETE_APPOINTMENT";
 
     private Operation() {
         // Prevent object creation

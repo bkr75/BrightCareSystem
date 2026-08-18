@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package server;
 
 import database.DBConnection;
@@ -16,12 +12,12 @@ public class DatabaseTest {
             Connection conn = DBConnection.getConnection();
 
             System.out.println(
-                "Database connected successfully!"
+                    "Database connected successfully!"
             );
 
             conn.close();
 
-        } catch(Exception e){
+        } catch (Exception e) {
 
             e.printStackTrace();
         }

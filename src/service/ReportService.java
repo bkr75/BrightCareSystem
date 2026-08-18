@@ -27,15 +27,14 @@ public class ReportService {
 
     // Monthly appointment summary: how many appointments were booked in a
     // given month, broken down by status.
-
     public Response generateAppointmentSummaryReport(int month, int year) {
 
         if (month < 1 || month > 12) {
             return new Response(false, "Invalid month.", null);
         }
 
-        List<Appointment> appointments =
-                appointmentDAO.getAppointmentsByMonth(month, year);
+        List<Appointment> appointments
+                = appointmentDAO.getAppointmentsByMonth(month, year);
 
         int completed = 0;
         int cancelled = 0;
@@ -73,7 +72,6 @@ public class ReportService {
     }
 
     // Doctor activity report: total appointments handled per doctor.
-
     public Response generateDoctorActivityReport() {
 
         List<Doctor> doctors = doctorDAO.getAllDoctors();
@@ -102,7 +100,6 @@ public class ReportService {
     }
 
     // Patient analytics report: overall patient/appointment volume.
-
     public Response generatePatientAnalyticsReport() {
 
         int totalPatients = patientDAO.getPatientCount();

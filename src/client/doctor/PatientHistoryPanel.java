@@ -66,8 +66,8 @@ public class PatientHistoryPanel extends JPanel {
             return;
         }
 
-        proxy.setRetryListener((attempt, max, backoff) ->
-                statusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
+        proxy.setRetryListener((attempt, max, backoff)
+                -> statusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
 
         Response response = proxy.getPatientHistory(patientId);
 
@@ -84,9 +84,9 @@ public class PatientHistoryPanel extends JPanel {
                 DoctorTheme.setStatus(statusLabel, response);
                 for (MedicalRecord record : records) {
                     tableModel.addRow(new Object[]{
-                            record.getRecordId(),
-                            record.getPatientId(),
-                            record.getDiagnosis()
+                        record.getRecordId(),
+                        record.getPatientId(),
+                        record.getDiagnosis()
                     });
                 }
             }
