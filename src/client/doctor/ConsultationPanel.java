@@ -22,38 +22,49 @@ public class ConsultationPanel extends JPanel {
     public ConsultationPanel(DoctorServiceProxy proxy) {
 
         this.proxy = proxy;
+        setLayout(new BorderLayout());
+        setOpaque(false);
 
-        setLayout(new BorderLayout(8, 8));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.add(new JLabel("Consultation ID:"));
-
-        consultationIdField = new JTextField(6);
-        topPanel.add(consultationIdField);
-
-        JButton loadButton = new JButton("Load");
-        topPanel.add(loadButton);
-
+        consultationIdField = DoctorTheme.createStyledTextField();
+        JButton loadButton = DoctorTheme.createPrimaryButton("Load");
         versionLabel = new JLabel("(not loaded)");
-        topPanel.add(versionLabel);
+        versionLabel.setFont(DoctorTheme.FONT_SUBHEADER);
+        versionLabel.setForeground(DoctorTheme.TEXT_DARK);
 
-        add(topPanel, BorderLayout.NORTH);
+        notesArea = DoctorTheme.createStyledTextArea();
+        notesArea.setRows(8);
 
-        notesArea = new JTextArea();
-        notesArea.setLineWrap(true);
-        notesArea.setWrapStyleWord(true);
-        add(new JScrollPane(notesArea), BorderLayout.CENTER);
+        JButton updateButton = DoctorTheme.createPrimaryButton("Update Consultation Notes");
+        statusLabel = DoctorTheme.createStatusLabel();
+
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setOpaque(false);
+        GridBagConstraints gbc = DoctorTheme.defaultGbc();
+        DoctorTheme.addFormRow(formPanel, gbc, 0, "Consultation ID:", consultationIdField);
+
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.insets = new Insets(10, 8, 5, 8);
+        formPanel.add(loadButton, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(0, 8, 10, 8);
+        formPanel.add(versionLabel, gbc);
+
+        JPanel content = new JPanel(new BorderLayout(10, 10));
+        content.setOpaque(false);
+        content.add(formPanel, BorderLayout.NORTH);
+        content.add(new JScrollPane(notesArea), BorderLayout.CENTER);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
-
-        JButton updateButton = new JButton("Update Consultation Notes");
+        bottomPanel.setOpaque(false);
         bottomPanel.add(updateButton, BorderLayout.NORTH);
-
-        statusLabel = new JLabel(" ");
         bottomPanel.add(statusLabel, BorderLayout.SOUTH);
+        content.add(bottomPanel, BorderLayout.SOUTH);
 
-        add(bottomPanel, BorderLayout.SOUTH);
+        add(DoctorTheme.createCardPanel("Consultation Notes", content, true), BorderLayout.CENTER);
 
         loadButton.addActionListener(e -> loadConsultation());
         updateButton.addActionListener(e -> updateNotes());
@@ -66,7 +77,7 @@ public class ConsultationPanel extends JPanel {
         try {
             consultationId = Integer.parseInt(consultationIdField.getText().trim());
         } catch (NumberFormatException ex) {
-            statusLabel.setText("Please enter a valid numeric Consultation ID.");
+            DoctorTheme.setErrorStatus(statusLabel, "Please enter a valid numeric Consultation ID.");
             return;
         }
 
@@ -75,7 +86,7 @@ public class ConsultationPanel extends JPanel {
 
         Response response = proxy.getConsultation(consultationId);
 
-        statusLabel.setText(response.getMessage());
+        DoctorTheme.setStatus(statusLabel, response);
 
         if (response.isSuccess() && response.getData() instanceof Consultation) {
 
@@ -93,14 +104,14 @@ public class ConsultationPanel extends JPanel {
     private void updateNotes() {
 
         if (loadedConsultation == null) {
-            statusLabel.setText("Load a consultation first before updating it.");
+            DoctorTheme.setErrorStatus(statusLabel, "Load a consultation first before updating it.");
             return;
         }
 
         String notes = notesArea.getText().trim();
 
         if (notes.isEmpty()) {
-            statusLabel.setText("Please enter consultation notes.");
+            DoctorTheme.setErrorStatus(statusLabel, "Please enter consultation notes.");
             return;
         }
 
@@ -115,7 +126,7 @@ public class ConsultationPanel extends JPanel {
 
         Response response = proxy.updateConsultationNotes(consultation);
 
-        statusLabel.setText(response.getMessage());
+        DoctorTheme.setStatus(statusLabel, response);
 
         if (response.isSuccess() && response.getData() instanceof Consultation) {
 

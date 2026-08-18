@@ -12,48 +12,57 @@ public class AppointmentListPanel extends JPanel {
 
     private final DoctorServiceProxy proxy;
 
-    private final JTextField doctorIdField;
-    private final DefaultTableModel tableModel;
-    private final JLabel statusLabel;
-
     public AppointmentListPanel(DoctorServiceProxy proxy) {
 
         this.proxy = proxy;
+        setLayout(new BorderLayout());
+        setOpaque(false);
 
-        setLayout(new BorderLayout(8, 8));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JTextField doctorIdField = DoctorTheme.createStyledTextField();
+        JLabel statusLabel = DoctorTheme.createStatusLabel();
+        JButton loadButton = DoctorTheme.createPrimaryButton("Load Appointments");
 
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.add(new JLabel("Doctor ID:"));
+        DefaultTableModel tableModel = new DefaultTableModel(
+                new Object[]{"Appointment ID", "Patient ID", "Schedule ID", "Date", "Status"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        JTable table = DoctorTheme.createStyledTable(tableModel);
 
-        doctorIdField = new JTextField(6);
-        topPanel.add(doctorIdField);
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setOpaque(false);
+        GridBagConstraints gbc = DoctorTheme.defaultGbc();
+        DoctorTheme.addFormRow(formPanel, gbc, 0, "Doctor ID:", doctorIdField);
 
-        JButton loadButton = new JButton("Load Appointments");
-        topPanel.add(loadButton);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.insets = new Insets(10, 8, 5, 8);
+        formPanel.add(loadButton, gbc);
 
-        add(topPanel, BorderLayout.NORTH);
+        gbc.gridy = 2;
+        gbc.insets = new Insets(5, 8, 5, 8);
+        formPanel.add(statusLabel, gbc);
 
-        tableModel = new DefaultTableModel(
-                new Object[]{"Appointment ID", "Patient ID", "Schedule ID", "Date", "Status"}, 0);
+        loadButton.addActionListener(e -> loadAppointments(doctorIdField, tableModel, statusLabel));
 
-        JTable table = new JTable(tableModel);
-        add(new JScrollPane(table), BorderLayout.CENTER);
+        JPanel content = new JPanel(new BorderLayout(10, 15));
+        content.setOpaque(false);
+        content.add(formPanel, BorderLayout.NORTH);
+        content.add(new JScrollPane(table), BorderLayout.CENTER);
 
-        statusLabel = new JLabel(" ");
-        add(statusLabel, BorderLayout.SOUTH);
-
-        loadButton.addActionListener(e -> loadAppointments());
+        add(DoctorTheme.createCardPanel("Doctor Appointment List", content, true), BorderLayout.CENTER);
     }
 
-    private void loadAppointments() {
+    private void loadAppointments(JTextField doctorIdField, DefaultTableModel tableModel, JLabel statusLabel) {
 
         int doctorId;
 
         try {
             doctorId = Integer.parseInt(doctorIdField.getText().trim());
         } catch (NumberFormatException ex) {
-            statusLabel.setText("Please enter a valid numeric Doctor ID.");
+            DoctorTheme.setErrorStatus(statusLabel, "Please enter a valid numeric Doctor ID.");
             return;
         }
 
@@ -62,8 +71,6 @@ public class AppointmentListPanel extends JPanel {
 
         Response response = proxy.getAppointmentList(doctorId);
 
-        statusLabel.setText(response.getMessage());
-
         tableModel.setRowCount(0);
 
         if (response.isSuccess() && response.getData() instanceof List) {
@@ -71,15 +78,22 @@ public class AppointmentListPanel extends JPanel {
             @SuppressWarnings("unchecked")
             List<Appointment> appointments = (List<Appointment>) response.getData();
 
-            for (Appointment appointment : appointments) {
-                tableModel.addRow(new Object[]{
-                        appointment.getAppointmentId(),
-                        appointment.getPatientId(),
-                        appointment.getScheduleId(),
-                        appointment.getAppointmentDate(),
-                        appointment.getStatus()
-                });
+            if (appointments.isEmpty()) {
+                DoctorTheme.setErrorStatus(statusLabel, "No appointments found for Doctor ID: " + doctorId);
+            } else {
+                DoctorTheme.setStatus(statusLabel, response);
+                for (Appointment appointment : appointments) {
+                    tableModel.addRow(new Object[]{
+                            appointment.getAppointmentId(),
+                            appointment.getPatientId(),
+                            appointment.getScheduleId(),
+                            appointment.getAppointmentDate(),
+                            appointment.getStatus()
+                    });
+                }
             }
+        } else {
+            DoctorTheme.setStatus(statusLabel, response);
         }
     }
 }

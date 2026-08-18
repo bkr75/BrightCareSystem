@@ -13,9 +13,8 @@ public class SchedulePanel extends JPanel {
 
     private final DoctorServiceProxy proxy;
 
-    private final JTextField doctorIdField;
-    private final DefaultTableModel tableModel;
     private final JTable table;
+    private final DefaultTableModel tableModel;
     private final JComboBox<String> statusCombo;
     private final JLabel statusLabel;
 
@@ -24,20 +23,12 @@ public class SchedulePanel extends JPanel {
     public SchedulePanel(DoctorServiceProxy proxy) {
 
         this.proxy = proxy;
+        setLayout(new BorderLayout());
+        setOpaque(false);
 
-        setLayout(new BorderLayout(8, 8));
-        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        topPanel.add(new JLabel("Doctor ID:"));
-
-        doctorIdField = new JTextField(6);
-        topPanel.add(doctorIdField);
-
-        JButton loadButton = new JButton("Load Schedule");
-        topPanel.add(loadButton);
-
-        add(topPanel, BorderLayout.NORTH);
+        JTextField doctorIdField = DoctorTheme.createStyledTextField();
+        statusLabel = DoctorTheme.createStatusLabel();
+        JButton loadButton = DoctorTheme.createPrimaryButton("Load Schedule");
 
         tableModel = new DefaultTableModel(
                 new Object[]{"Schedule ID", "Doctor ID", "Date", "Time", "Status"}, 0) {
@@ -46,39 +37,57 @@ public class SchedulePanel extends JPanel {
                 return false;
             }
         };
-
-        table = new JTable(tableModel);
-        add(new JScrollPane(table), BorderLayout.CENTER);
-
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        bottomPanel.add(new JLabel("New status for selected row:"));
+        table = DoctorTheme.createStyledTable(tableModel);
 
         statusCombo = new JComboBox<>(new String[]{"AVAILABLE", "BOOKED"});
-        bottomPanel.add(statusCombo);
+        statusCombo.setFont(DoctorTheme.FONT_INPUT);
+        JButton updateButton = DoctorTheme.createPrimaryButton("Update Status");
 
-        JButton updateButton = new JButton("Update Status");
-        bottomPanel.add(updateButton);
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        formPanel.setOpaque(false);
+        GridBagConstraints gbc = DoctorTheme.defaultGbc();
+        DoctorTheme.addFormRow(formPanel, gbc, 0, "Doctor ID:", doctorIdField);
 
-        JPanel southPanel = new JPanel(new BorderLayout());
-        southPanel.add(bottomPanel, BorderLayout.NORTH);
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.insets = new Insets(10, 8, 5, 8);
+        formPanel.add(loadButton, gbc);
 
-        statusLabel = new JLabel(" ");
-        southPanel.add(statusLabel, BorderLayout.SOUTH);
+        JPanel updateRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        updateRow.setOpaque(false);
+        updateRow.add(new JLabel("New status for selected row:") {{ setFont(DoctorTheme.FONT_LABEL); }});
+        updateRow.add(statusCombo);
+        updateRow.add(updateButton);
 
-        add(southPanel, BorderLayout.SOUTH);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(15, 8, 5, 8);
+        formPanel.add(updateRow, gbc);
 
-        loadButton.addActionListener(e -> loadSchedule());
+        gbc.gridy = 3;
+        gbc.insets = new Insets(5, 8, 5, 8);
+        formPanel.add(statusLabel, gbc);
+
+        loadButton.addActionListener(e -> loadSchedule(doctorIdField));
         updateButton.addActionListener(e -> updateSelectedStatus());
+
+        JPanel content = new JPanel(new BorderLayout(10, 15));
+        content.setOpaque(false);
+        content.add(formPanel, BorderLayout.NORTH);
+        content.add(new JScrollPane(table), BorderLayout.CENTER);
+
+        add(DoctorTheme.createCardPanel("Doctor Schedule Management", content, true), BorderLayout.CENTER);
     }
 
-    private void loadSchedule() {
+    private void loadSchedule(JTextField doctorIdField) {
 
         int doctorId;
 
         try {
             doctorId = Integer.parseInt(doctorIdField.getText().trim());
         } catch (NumberFormatException ex) {
-            statusLabel.setText("Please enter a valid numeric Doctor ID.");
+            DoctorTheme.setErrorStatus(statusLabel, "Please enter a valid numeric Doctor ID.");
             return;
         }
 
@@ -86,8 +95,6 @@ public class SchedulePanel extends JPanel {
                 statusLabel.setText("Reconnecting... attempt " + attempt + "/" + max));
 
         Response response = proxy.getSchedule(doctorId);
-
-        statusLabel.setText(response.getMessage());
 
         tableModel.setRowCount(0);
         currentSchedules.clear();
@@ -99,15 +106,22 @@ public class SchedulePanel extends JPanel {
 
             currentSchedules = schedules;
 
-            for (DoctorSchedule schedule : schedules) {
-                tableModel.addRow(new Object[]{
-                        schedule.getScheduleId(),
-                        schedule.getDoctorId(),
-                        schedule.getAvailableDate(),
-                        schedule.getAvailableTime(),
-                        schedule.getStatus()
-                });
+            if (schedules.isEmpty()) {
+                DoctorTheme.setErrorStatus(statusLabel, "No schedule found for Doctor ID: " + doctorId);
+            } else {
+                DoctorTheme.setStatus(statusLabel, response);
+                for (DoctorSchedule schedule : schedules) {
+                    tableModel.addRow(new Object[]{
+                            schedule.getScheduleId(),
+                            schedule.getDoctorId(),
+                            schedule.getAvailableDate(),
+                            schedule.getAvailableTime(),
+                            schedule.getStatus()
+                    });
+                }
             }
+        } else {
+            DoctorTheme.setStatus(statusLabel, response);
         }
     }
 
@@ -116,7 +130,7 @@ public class SchedulePanel extends JPanel {
         int selectedRow = table.getSelectedRow();
 
         if (selectedRow < 0 || selectedRow >= currentSchedules.size()) {
-            statusLabel.setText("Please select a schedule row first.");
+            DoctorTheme.setErrorStatus(statusLabel, "Please select a schedule row first.");
             return;
         }
 
@@ -136,10 +150,29 @@ public class SchedulePanel extends JPanel {
 
         Response response = proxy.updateSchedule(updated);
 
-        statusLabel.setText(response.getMessage());
+        DoctorTheme.setStatus(statusLabel, response);
 
         if (response.isSuccess()) {
-            loadSchedule();
+
+            int doctorId = selected.getDoctorId();
+            Response reload = proxy.getSchedule(doctorId);
+
+            tableModel.setRowCount(0);
+
+            if (reload.isSuccess() && reload.getData() instanceof List) {
+                @SuppressWarnings("unchecked")
+                List<DoctorSchedule> schedules = (List<DoctorSchedule>) reload.getData();
+                currentSchedules = schedules;
+                for (DoctorSchedule schedule : schedules) {
+                    tableModel.addRow(new Object[]{
+                            schedule.getScheduleId(),
+                            schedule.getDoctorId(),
+                            schedule.getAvailableDate(),
+                            schedule.getAvailableTime(),
+                            schedule.getStatus()
+                    });
+                }
+            }
         }
     }
 }
