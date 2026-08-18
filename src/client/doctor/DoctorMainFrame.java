@@ -10,12 +10,11 @@ import rmi.ClinicRemote;
 
 public class DoctorMainFrame extends JFrame {
 
-    public DoctorMainFrame() {
+    public DoctorMainFrame(DoctorServiceProxy proxy) {
 
         super("BrightCare Medical Center - Doctor Consultation Portal");
 
         DoctorTheme.applySystemLookAndFeel();
-        DoctorServiceProxy proxy = new DoctorServiceProxy();
 
         JPanel mainContainer = new JPanel(new BorderLayout());
         mainContainer.setBackground(DoctorTheme.BG_COLOR);
@@ -56,6 +55,15 @@ public class DoctorMainFrame extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new DoctorMainFrame().setVisible(true));
+        SwingUtilities.invokeLater(() -> {
+            DoctorServiceProxy proxy = new DoctorServiceProxy();
+
+            DoctorLoginDialog loginDialog = new DoctorLoginDialog(proxy);
+            loginDialog.setVisible(true);
+
+            if (loginDialog.isLoggedIn()) {
+                new DoctorMainFrame(proxy).setVisible(true);
+            }
+        });
     }
 }

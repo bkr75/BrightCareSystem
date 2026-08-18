@@ -5,6 +5,7 @@ import java.rmi.registry.Registry;
 
 import model.Consultation;
 import model.DoctorSchedule;
+import model.LoginData;
 import rmi.ClinicRemote;
 import shared.Operation;
 import shared.Request;
@@ -21,6 +22,10 @@ public class DoctorServiceProxy {
 
     private final String serverHost;
     private final int serverPort;
+
+    // Set once login() succeeds; every later request is stamped with it so
+    // ClinicRemoteImpl can look the role up from the USERS table.
+    private String username;
 
     public DoctorServiceProxy() {
         this(DEFAULT_HOST, DEFAULT_PORT);
@@ -96,27 +101,43 @@ public class DoctorServiceProxy {
         return new Response(false, "Unexpected error.", null);
     }
 
+    public Response login(String username, String password) {
+
+        Request request = new Request(
+                Operation.LOGIN,
+                new LoginData(username, password),
+                username);
+
+        Response response = send(request);
+
+        if (response.isSuccess()) {
+            this.username = username;
+        }
+
+        return response;
+    }
+
     public Response getAppointmentList(int doctorId) {
-        return send(new Request(Operation.GET_APPOINTMENT_LIST, doctorId));
+        return send(new Request(Operation.GET_APPOINTMENT_LIST, doctorId, username));
     }
 
     public Response getPatientHistory(int patientId) {
-        return send(new Request(Operation.VIEW_MEDICAL_HISTORY, patientId));
+        return send(new Request(Operation.VIEW_MEDICAL_HISTORY, patientId, username));
     }
 
     public Response getSchedule(int doctorId) {
-        return send(new Request(Operation.GET_SCHEDULE, doctorId));
+        return send(new Request(Operation.GET_SCHEDULE, doctorId, username));
     }
 
     public Response updateSchedule(DoctorSchedule schedule) {
-        return send(new Request(Operation.UPDATE_SCHEDULE, schedule));
+        return send(new Request(Operation.UPDATE_SCHEDULE, schedule, username));
     }
 
     public Response getConsultation(int consultationId) {
-        return send(new Request(Operation.VIEW_CONSULTATION, consultationId));
+        return send(new Request(Operation.VIEW_CONSULTATION, consultationId, username));
     }
 
     public Response updateConsultationNotes(Consultation consultation) {
-        return send(new Request(Operation.UPDATE_DIAGNOSIS, consultation));
+        return send(new Request(Operation.UPDATE_DIAGNOSIS, consultation, username));
     }
 }
