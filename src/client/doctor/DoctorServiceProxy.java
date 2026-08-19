@@ -2,6 +2,7 @@ package client.doctor;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import security.SslNoHostnameCheckSocketFactory;
 
 import model.Consultation;
 import model.DoctorSchedule;
@@ -57,7 +58,7 @@ public class DoctorServiceProxy {
     // actually came back from the server (even success=false) is never
     // retried - that's a real answer, not a fault.
     public Response send(Request request) {
-        request.setUsername("doctor");
+
         long backoff = INITIAL_BACKOFF_MS;
 
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
@@ -65,7 +66,8 @@ public class DoctorServiceProxy {
             try {
 
                 Registry registry
-                        = LocateRegistry.getRegistry(serverHost, serverPort);
+                        = LocateRegistry.getRegistry(
+                                serverHost, serverPort, new SslNoHostnameCheckSocketFactory());
 
                 ClinicRemote clinic
                         = (ClinicRemote) registry.lookup(SERVICE_NAME);
@@ -98,7 +100,6 @@ public class DoctorServiceProxy {
             }
         }
 
-        // Unreachable, but the compiler needs a return on every path.
         return new Response(false, "Unexpected error.", null);
     }
 
@@ -143,10 +144,10 @@ public class DoctorServiceProxy {
     }
 
     public Response addConsultation(Consultation consultation) {
-        return send(new Request(Operation.ADD_CONSULTATION, consultation));
+        return send(new Request(Operation.ADD_CONSULTATION, consultation, username));
     }
 
     public Response completeAppointment(int appointmentId) {
-        return send(new Request(Operation.COMPLETE_APPOINTMENT, appointmentId));
+        return send(new Request(Operation.COMPLETE_APPOINTMENT, appointmentId, username));
     }
 }

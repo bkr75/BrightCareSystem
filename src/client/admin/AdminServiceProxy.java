@@ -2,6 +2,7 @@ package client.admin;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import security.SslNoHostnameCheckSocketFactory;
 
 import model.LoginData;
 import model.ReportRequestData;
@@ -34,7 +35,8 @@ public class AdminServiceProxy {
 
     public boolean isServerReachable() {
         try {
-            Registry registry = LocateRegistry.getRegistry(serverHost, serverPort);
+            Registry registry = LocateRegistry.getRegistry(
+                    serverHost, serverPort, new SslNoHostnameCheckSocketFactory());
             return registry.lookup(SERVICE_NAME) instanceof ClinicRemote;
         } catch (Exception e) {
             return false;

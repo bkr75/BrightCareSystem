@@ -5,6 +5,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.Date;
 import java.util.List;
+import security.SslNoHostnameCheckSocketFactory;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -17,6 +18,7 @@ import model.Appointment;
 import model.DoctorSchedule;
 import model.Patient;
 import rmi.ClinicRemote;
+import security.SslConfig;
 import shared.Operation;
 import shared.Request;
 import shared.Response;
@@ -119,7 +121,8 @@ public class PatientMainFrame extends JFrame {
 
     private void connectToServer() {
         try {
-            Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+            Registry registry = LocateRegistry.getRegistry(
+                    "localhost", 1099, new SslNoHostnameCheckSocketFactory());
             clinic = (ClinicRemote) registry.lookup("ClinicService");
         } catch (Exception e) {
             clinic = null;
@@ -523,6 +526,7 @@ public class PatientMainFrame extends JFrame {
     }
 
     public static void main(String[] args) {
+        SslConfig.configureClient();
         SwingUtilities.invokeLater(() -> new PatientMainFrame().setVisible(true));
     }
 }

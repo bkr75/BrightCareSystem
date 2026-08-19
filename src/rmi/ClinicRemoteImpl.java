@@ -2,6 +2,8 @@ package rmi;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import javax.rmi.ssl.SslRMIServerSocketFactory;
+import security.SslNoHostnameCheckSocketFactory;
 
 import model.Appointment;
 import security.Authorization;
@@ -30,7 +32,7 @@ public class ClinicRemoteImpl extends UnicastRemoteObject implements ClinicRemot
     private final DoctorService doctorService;
 
     public ClinicRemoteImpl() throws RemoteException {
-        super();
+        super(0, new SslNoHostnameCheckSocketFactory(), new SslRMIServerSocketFactory());
         appointmentService = new AppointmentService();
         patientService = new PatientService();
         consultationService = new ConsultationService();

@@ -3,6 +3,7 @@ package client.receptionist;
 import java.awt.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import security.SslNoHostnameCheckSocketFactory;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -11,6 +12,7 @@ import javax.swing.border.LineBorder;
 
 import model.Patient;
 import rmi.ClinicRemote;
+import security.SslConfig;
 import shared.Operation;
 import shared.Request;
 import shared.Response;
@@ -74,7 +76,8 @@ public class ReceptionistMainFrame extends JFrame {
 
     private void connectToServer() {
         try {
-            Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+            Registry registry = LocateRegistry.getRegistry(
+                    "localhost", 1099, new SslNoHostnameCheckSocketFactory());
             clinic = (ClinicRemote) registry.lookup("ClinicService");
         } catch (Exception e) {
             clinic = null;
@@ -305,6 +308,7 @@ public class ReceptionistMainFrame extends JFrame {
     }
 
     public static void main(String[] args) {
+        SslConfig.configureClient();
         SwingUtilities.invokeLater(() -> new ReceptionistMainFrame().setVisible(true));
     }
 }

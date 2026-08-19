@@ -5,8 +5,10 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import security.SslNoHostnameCheckSocketFactory;
 
 import rmi.ClinicRemote;
+import security.SslConfig;
 
 public class DoctorMainFrame extends JFrame {
 
@@ -47,7 +49,8 @@ public class DoctorMainFrame extends JFrame {
 
     private boolean isServerReachable() {
         try {
-            Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+            Registry registry = LocateRegistry.getRegistry(
+                    "localhost", 1099, new SslNoHostnameCheckSocketFactory());
             return registry.lookup("ClinicService") instanceof ClinicRemote;
         } catch (Exception e) {
             return false;
@@ -55,6 +58,7 @@ public class DoctorMainFrame extends JFrame {
     }
 
     public static void main(String[] args) {
+        SslConfig.configureClient();
         SwingUtilities.invokeLater(() -> {
             DoctorServiceProxy proxy = new DoctorServiceProxy();
 

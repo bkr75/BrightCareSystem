@@ -10,6 +10,7 @@ import model.AppointmentSummaryReport;
 import model.DoctorActivityReport;
 import model.PatientAnalyticsReport;
 import shared.Response;
+import security.SslConfig;
 
 public class AdminMainFrame extends JFrame {
 
@@ -289,6 +290,7 @@ public class AdminMainFrame extends JFrame {
     }
 
     public static void main(String[] args) {
+        SslConfig.configureClient();
         SwingUtilities.invokeLater(() -> new AdminMainFrame().setVisible(true));
     }
 }
