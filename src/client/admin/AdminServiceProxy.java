@@ -81,12 +81,11 @@ public class AdminServiceProxy {
     }
 
     private Response send(Request request) {
-
         try {
-            Registry registry = LocateRegistry.getRegistry(serverHost, serverPort);
+            Registry registry = LocateRegistry.getRegistry(
+                    serverHost, serverPort, new SslNoHostnameCheckSocketFactory());
             ClinicRemote clinic = (ClinicRemote) registry.lookup(SERVICE_NAME);
             return clinic.processRequest(request);
-
         } catch (Exception e) {
             return new Response(false,
                     "Could not reach the server: " + e.getMessage(),
