@@ -9,8 +9,8 @@ public class DBConnection {
     private static final String URL
             = "jdbc:derby://localhost:1527/BrightCareDB";
 
-    private static final String USER = "APP";
-    private static final String PASSWORD = "password";
+    private static final String USER = "DS";
+    private static final String PASSWORD = "123";
 
     public static Connection getConnection() throws SQLException {
 
