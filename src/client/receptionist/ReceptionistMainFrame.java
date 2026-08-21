@@ -10,6 +10,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import model.LoginData;
 import model.Patient;
 import rmi.ClinicRemote;
 import security.SslConfig;
@@ -24,6 +25,7 @@ import shared.Response;
 public class ReceptionistMainFrame extends JFrame {
 
     private ClinicRemote clinic;
+    private String username;
 
     // Form Text Fields
     private JTextField firstNameField;
@@ -58,12 +60,87 @@ public class ReceptionistMainFrame extends JFrame {
 
         setSystemLookAndFeel();
         connectToServer();
-        initComponents();
-        buildUI();
 
-        setSize(750, 530);
+        setSize(850, 650);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        showLoginScreen();
+    }
+
+    // ---------- Login screen (shown first) ----------
+    private void showLoginScreen() {
+
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        wrapper.setBackground(BG_COLOR);
+
+        JTextField usernameField = createStyledTextField();
+        JPasswordField passwordField = new JPasswordField(18);
+        passwordField.setFont(FONT_INPUT);
+        passwordField.setBorder(usernameField.getBorder());
+
+        JLabel loginStatusLabel = createStatusLabel();
+        JButton loginButton = createPrimaryButton("Log In");
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setOpaque(false);
+        GridBagConstraints gbc = defaultGbc();
+        addFormRow(form, gbc, 0, "Username:", usernameField);
+        addFormRow(form, gbc, 1, "Password:", passwordField);
+
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.insets = new Insets(15, 8, 5, 8);
+        form.add(loginButton, gbc);
+
+        gbc.gridy = 3;
+        gbc.insets = new Insets(5, 8, 5, 8);
+        form.add(loginStatusLabel, gbc);
+
+        wrapper.add(createCardPanel("Receptionist Login", form, false));
+
+        Runnable attemptLogin = () -> {
+
+            String enteredUsername = usernameField.getText().trim();
+            String enteredPassword = new String(passwordField.getPassword()).trim();
+
+            if (enteredUsername.isEmpty() || enteredPassword.isEmpty()) {
+                loginStatusLabel.setForeground(ERROR_COLOR);
+                loginStatusLabel.setText("✖ Please enter both username and password.");
+                return;
+            }
+
+            if (clinic == null) {
+                loginStatusLabel.setForeground(ERROR_COLOR);
+                loginStatusLabel.setText("✖ Not connected to the server.");
+                return;
+            }
+
+            try {
+                Request request = new Request(Operation.LOGIN,
+                        new LoginData(enteredUsername, enteredPassword), enteredUsername);
+                Response response = clinic.processRequest(request);
+
+                if (response.isSuccess()) {
+                    username = enteredUsername;
+                    initComponents();
+                    buildUI();
+                } else {
+                    loginStatusLabel.setForeground(ERROR_COLOR);
+                    loginStatusLabel.setText("✖ " + response.getMessage());
+                }
+            } catch (Exception ex) {
+                loginStatusLabel.setForeground(ERROR_COLOR);
+                loginStatusLabel.setText("✖ Login error: " + ex.getMessage());
+            }
+        };
+
+        loginButton.addActionListener(e -> attemptLogin.run());
+        passwordField.addActionListener(e -> attemptLogin.run());
+
+        setContentPane(wrapper);
+        revalidate();
+        repaint();
     }
 
     private void setSystemLookAndFeel() {
@@ -124,24 +201,16 @@ public class ReceptionistMainFrame extends JFrame {
         buttonPanel.add(clearButton);
 
         // Card Container
-        JPanel card = createCardPanel("New Patient Intake Form");
         JPanel cardContent = new JPanel(new BorderLayout(10, 10));
         cardContent.setOpaque(false);
         cardContent.add(statusLabel, BorderLayout.NORTH);
         cardContent.add(formPanel, BorderLayout.CENTER);
         cardContent.add(buttonPanel, BorderLayout.SOUTH);
 
-        card.add(cardContent, BorderLayout.NORTH);
-
-        JPanel outerCardWrapper = new JPanel(new BorderLayout());
-        outerCardWrapper.setBackground(BG_COLOR);
-        outerCardWrapper.setBorder(new EmptyBorder(10, 10, 10, 10));
-        outerCardWrapper.add(card, BorderLayout.CENTER);
-
         // Tabbed Pane Wrapper
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setFont(FONT_LABEL);
-        tabbedPane.addTab("  Register Patient  ", outerCardWrapper);
+        tabbedPane.addTab("  Register Patient  ", createCardPanel("New Patient Intake Form", cardContent, false));
 
         JPanel tabWrapper = new JPanel(new BorderLayout());
         tabWrapper.setBackground(BG_COLOR);
@@ -150,6 +219,8 @@ public class ReceptionistMainFrame extends JFrame {
 
         mainContainer.add(tabWrapper, BorderLayout.CENTER);
         setContentPane(mainContainer);
+        revalidate();
+        repaint();
     }
 
     private JPanel createHeaderPanel() {
@@ -191,7 +262,7 @@ public class ReceptionistMainFrame extends JFrame {
 
     // ---------- UI Helper Factory Methods ----------
     private JTextField createStyledTextField() {
-        JTextField field = new JTextField(20);
+        JTextField field = new JTextField(18);
         field.setFont(FONT_INPUT);
         field.setBorder(new CompoundBorder(
                 new LineBorder(new Color(203, 213, 225), 1, true),
@@ -205,9 +276,12 @@ public class ReceptionistMainFrame extends JFrame {
         btn.setFont(FONT_BTN);
         btn.setBackground(PRIMARY_COLOR);
         btn.setForeground(Color.WHITE);
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
+        btn.setBorderPainted(false);
         btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setBorder(new EmptyBorder(8, 16, 8, 16));
+        btn.setBorder(new EmptyBorder(8, 18, 8, 18));
         return btn;
     }
 
@@ -216,6 +290,9 @@ public class ReceptionistMainFrame extends JFrame {
         btn.setFont(FONT_BTN);
         btn.setBackground(new Color(226, 232, 240));
         btn.setForeground(TEXT_DARK);
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
+        btn.setBorderPainted(false);
         btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.setBorder(new EmptyBorder(8, 16, 8, 16));
@@ -225,25 +302,36 @@ public class ReceptionistMainFrame extends JFrame {
     private JLabel createStatusLabel() {
         JLabel label = new JLabel(" ", SwingConstants.LEFT);
         label.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        label.setBorder(new EmptyBorder(5, 5, 5, 5));
         return label;
     }
 
-    private JPanel createCardPanel(String titleText) {
+    private JPanel createCardPanel(String titleText, JComponent contentComponent, boolean fillSpace) {
         JPanel card = new JPanel(new BorderLayout(15, 15));
         card.setBackground(CARD_BG);
         card.setBorder(new CompoundBorder(
                 new LineBorder(new Color(226, 232, 240), 1, true),
-                new EmptyBorder(15, 20, 15, 20)
+                new EmptyBorder(20, 25, 20, 25)
         ));
 
         JLabel title = new JLabel(titleText);
-        title.setFont(new Font("SansSerif", Font.BOLD, 15));
+        title.setFont(new Font("SansSerif", Font.BOLD, 16));
         title.setForeground(PRIMARY_COLOR);
         title.setBorder(new EmptyBorder(0, 0, 10, 0));
 
         card.add(title, BorderLayout.NORTH);
-        return card;
+        card.add(contentComponent, BorderLayout.CENTER);
+
+        JPanel outer = new JPanel(new BorderLayout());
+        outer.setBackground(BG_COLOR);
+        outer.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        if (fillSpace) {
+            outer.add(card, BorderLayout.CENTER);
+        } else {
+            outer.add(card, BorderLayout.NORTH);
+        }
+
+        return outer;
     }
 
     private GridBagConstraints defaultGbc() {
@@ -283,7 +371,7 @@ public class ReceptionistMainFrame extends JFrame {
         Patient patient = new Patient(firstName, lastName, icPassport, contactNumber, medicalRecordId);
 
         try {
-            Request request = new Request(Operation.REGISTER_PATIENT, patient, "receptionist");
+            Request request = new Request(Operation.REGISTER_PATIENT, patient, username);
             Response response = clinic.processRequest(request);
             if (response.isSuccess()) {
                 statusLabel.setForeground(SUCCESS_COLOR);

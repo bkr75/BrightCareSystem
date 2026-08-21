@@ -16,6 +16,7 @@ import javax.swing.table.DefaultTableModel;
 
 import model.Appointment;
 import model.DoctorSchedule;
+import model.LoginData;
 import model.Patient;
 import rmi.ClinicRemote;
 import security.SslConfig;
@@ -27,6 +28,7 @@ public class PatientMainFrame extends JFrame {
 
     private ClinicRemote clinic;
     private JLabel serverStatusLabel;
+    private String username;
 
     // Theme Colors
     private static final Color PRIMARY_COLOR = new Color(15, 118, 110);    // Medical Teal
@@ -49,6 +51,86 @@ public class PatientMainFrame extends JFrame {
         setSystemLookAndFeel();
         connectToServer();
 
+        setSize(850, 650);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        showLoginScreen();
+    }
+
+    // ---------- Login screen (shown first) ----------
+    private void showLoginScreen() {
+
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        wrapper.setBackground(BG_COLOR);
+
+        JTextField usernameField = createStyledTextField();
+        JPasswordField passwordField = new JPasswordField(18);
+        passwordField.setFont(FONT_INPUT);
+        passwordField.setBorder(usernameField.getBorder());
+
+        JLabel statusLabel = createStatusLabel();
+        JButton loginButton = createPrimaryButton("Log In");
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setOpaque(false);
+        GridBagConstraints gbc = defaultGbc();
+        addFormRow(form, gbc, 0, "Username:", usernameField);
+        addFormRow(form, gbc, 1, "Password:", passwordField);
+
+        gbc.gridx = 1;
+        gbc.gridy = 2;
+        gbc.insets = new Insets(15, 8, 5, 8);
+        form.add(loginButton, gbc);
+
+        gbc.gridy = 3;
+        gbc.insets = new Insets(5, 8, 5, 8);
+        form.add(statusLabel, gbc);
+
+        wrapper.add(createCardPanel("Patient Login", form, false));
+
+        Runnable attemptLogin = () -> {
+
+            String enteredUsername = usernameField.getText().trim();
+            String enteredPassword = new String(passwordField.getPassword()).trim();
+
+            if (enteredUsername.isEmpty() || enteredPassword.isEmpty()) {
+                setErrorStatus(statusLabel, "Please enter both username and password.");
+                return;
+            }
+
+            if (clinic == null) {
+                setErrorStatus(statusLabel, "Not connected to the server.");
+                return;
+            }
+
+            try {
+                Request request = new Request(Operation.LOGIN,
+                        new LoginData(enteredUsername, enteredPassword), enteredUsername);
+                Response response = clinic.processRequest(request);
+
+                if (response.isSuccess()) {
+                    username = enteredUsername;
+                    showPortal();
+                } else {
+                    setErrorStatus(statusLabel, response.getMessage());
+                }
+            } catch (Exception ex) {
+                setErrorStatus(statusLabel, "Login error: " + ex.getMessage());
+            }
+        };
+
+        loginButton.addActionListener(e -> attemptLogin.run());
+        passwordField.addActionListener(e -> attemptLogin.run());
+
+        setContentPane(wrapper);
+        revalidate();
+        repaint();
+    }
+
+    // ---------- Main portal (shown after a successful login) ----------
+    private void showPortal() {
+
         JPanel mainContainer = new JPanel(new BorderLayout());
         mainContainer.setBackground(BG_COLOR);
 
@@ -70,9 +152,8 @@ public class PatientMainFrame extends JFrame {
         mainContainer.add(tabWrapper, BorderLayout.CENTER);
 
         setContentPane(mainContainer);
-        setSize(850, 650);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        revalidate();
+        repaint();
     }
 
     private void setSystemLookAndFeel() {
@@ -168,7 +249,7 @@ public class PatientMainFrame extends JFrame {
                 Appointment appointment = new Appointment(
                         patientId, doctorId, scheduleId, appointmentDate, "BOOKED");
 
-                Request request = new Request(Operation.BOOK_APPOINTMENT, appointment, "patient");
+                Request request = new Request(Operation.BOOK_APPOINTMENT, appointment, username);
                 Response response = clinic.processRequest(request);
                 setStatus(statusLabel, response);
             } catch (Exception ex) {
@@ -203,7 +284,7 @@ public class PatientMainFrame extends JFrame {
             try {
                 int appointmentId = Integer.parseInt(appointmentIdField.getText().trim());
 
-                Request request = new Request(Operation.CANCEL_APPOINTMENT, appointmentId, "patient");
+                Request request = new Request(Operation.CANCEL_APPOINTMENT, appointmentId, username);
                 Response response = clinic.processRequest(request);
                 setStatus(statusLabel, response);
             } catch (Exception ex) {
@@ -249,7 +330,7 @@ public class PatientMainFrame extends JFrame {
             try {
                 int patientId = Integer.parseInt(patientIdField.getText().trim());
 
-                Request request = new Request(Operation.VIEW_APPOINTMENT_HISTORY, patientId, "patient");
+                Request request = new Request(Operation.VIEW_APPOINTMENT_HISTORY, patientId, username);
                 Response response = clinic.processRequest(request);
 
                 if (response.isSuccess() && response.getData() instanceof List) {
@@ -318,7 +399,7 @@ public class PatientMainFrame extends JFrame {
                 Patient patient = new Patient(
                         patientId, "", "", icPassport, contactNumber, "");
 
-                Request request = new Request(Operation.UPDATE_PATIENT_INFO, patient, "patient");
+                Request request = new Request(Operation.UPDATE_PATIENT_INFO, patient, username);
                 Response response = clinic.processRequest(request);
                 setStatus(statusLabel, response);
             } catch (Exception ex) {
@@ -364,7 +445,7 @@ public class PatientMainFrame extends JFrame {
             try {
                 int doctorId = Integer.parseInt(doctorIdField.getText().trim());
 
-                Request request = new Request(Operation.CHECK_DOCTOR_AVAILABILITY, doctorId, "patient");
+                Request request = new Request(Operation.CHECK_DOCTOR_AVAILABILITY, doctorId, username);
                 Response response = clinic.processRequest(request);
 
                 if (response.isSuccess() && response.getData() instanceof List) {

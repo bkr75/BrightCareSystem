@@ -52,6 +52,20 @@ public class DoctorServiceProxy {
         this.retryListener = retryListener;
     }
 
+// Live check used to show "Server Connected" / "Offline" in the header.
+// Uses the actual configured serverHost/serverPort (not a hardcoded
+// "localhost"), so the status is correct even after the team points
+// this proxy at a real IP for a distributed run.
+    public boolean isServerReachable() {
+        try {
+            Registry registry = LocateRegistry.getRegistry(
+                    serverHost, serverPort, new SslNoHostnameCheckSocketFactory());
+            return registry.lookup(SERVICE_NAME) instanceof ClinicRemote;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     // Single choke point for every RMI call made by the Doctor module.
     // Retries up to MAX_ATTEMPTS times with exponential backoff (1s, 2s, 4s)
     // when the failure looks like a connection problem. A response that

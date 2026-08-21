@@ -3,26 +3,39 @@ package client.doctor;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import security.SslNoHostnameCheckSocketFactory;
-
-import rmi.ClinicRemote;
-import security.SslConfig;
 
 public class DoctorMainFrame extends JFrame {
 
-    public DoctorMainFrame(DoctorServiceProxy proxy) {
+    private final DoctorServiceProxy proxy = new DoctorServiceProxy();
+
+    public DoctorMainFrame() {
 
         super("BrightCare Medical Center - Doctor Consultation Portal");
 
         DoctorTheme.applySystemLookAndFeel();
 
+        setSize(850, 650);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        showLoginScreen();
+    }
+
+    // ---------- Login screen (shown first) ----------
+    private void showLoginScreen() {
+        setContentPane(new DoctorLoginPanel(proxy, this::showPortal));
+        revalidate();
+        repaint();
+    }
+
+    // ---------- Main portal (shown after a successful login) ----------
+    private void showPortal() {
+
         JPanel mainContainer = new JPanel(new BorderLayout());
         mainContainer.setBackground(DoctorTheme.BG_COLOR);
 
         JLabel serverStatusLabel = new JLabel();
-        DoctorTheme.setServerStatus(serverStatusLabel, isServerReachable());
+        DoctorTheme.setServerStatus(serverStatusLabel, proxy.isServerReachable());
         mainContainer.add(
                 DoctorTheme.createHeaderPanel("Doctor Consultation Portal", serverStatusLabel),
                 BorderLayout.NORTH);
@@ -42,32 +55,12 @@ public class DoctorMainFrame extends JFrame {
         mainContainer.add(tabWrapper, BorderLayout.CENTER);
 
         setContentPane(mainContainer);
-        setSize(850, 650);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    }
-
-    private boolean isServerReachable() {
-        try {
-            Registry registry = LocateRegistry.getRegistry(
-                    "localhost", 1099, new SslNoHostnameCheckSocketFactory());
-            return registry.lookup("ClinicService") instanceof ClinicRemote;
-        } catch (Exception e) {
-            return false;
-        }
+        revalidate();
+        repaint();
     }
 
     public static void main(String[] args) {
-        SslConfig.configureClient();
-        SwingUtilities.invokeLater(() -> {
-            DoctorServiceProxy proxy = new DoctorServiceProxy();
-
-            DoctorLoginDialog loginDialog = new DoctorLoginDialog(proxy);
-            loginDialog.setVisible(true);
-
-            if (loginDialog.isLoggedIn()) {
-                new DoctorMainFrame(proxy).setVisible(true);
-            }
-        });
+        security.SslConfig.configureClient();
+        SwingUtilities.invokeLater(() -> new DoctorMainFrame().setVisible(true));
     }
 }
