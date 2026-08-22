@@ -3,9 +3,11 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/jaber/Documents/GitHub/BrightCareSystem/src/database/DBConnection.java</file>
-            <file>file:/C:/Users/jaber/Documents/GitHub/BrightCareSystem/src/client/doctor/DoctorMainFrame.java</file>
-            <file>file:/C:/Users/jaber/Documents/GitHub/BrightCareSystem/src/dao/UserDAO.java</file>
+            <file>file:/C:/Users/jaber/Documents/GitHub/BrightCareSystem/test/shared/RequestTest.java</file>
+            <file>file:/C:/Users/jaber/Documents/GitHub/BrightCareSystem/test/shared/ResponseTest.java</file>
+            <file>file:/C:/Users/jaber/Documents/GitHub/BrightCareSystem/test/security/AuthorizationTest.java</file>
+            <file>file:/C:/Users/jaber/Documents/GitHub/BrightCareSystem/test/security/SslConfigTest.java</file>
+            <file>file:/C:/Users/jaber/Documents/GitHub/BrightCareSystem/test/shared/OperationTest.java</file>
         </group>
     </open-files>
 </project-private>
