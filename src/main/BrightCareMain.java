@@ -1,4 +1,6 @@
-package server;
+package main;
+
+import server.RMIServer;
 
 public class BrightCareMain {
 

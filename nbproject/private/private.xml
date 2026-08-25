@@ -8,6 +8,8 @@
             <file>file:/C:/Users/jaber/Documents/GitHub/BrightCareSystem/test/security/AuthorizationTest.java</file>
             <file>file:/C:/Users/jaber/Documents/GitHub/BrightCareSystem/test/security/SslConfigTest.java</file>
             <file>file:/C:/Users/jaber/Documents/GitHub/BrightCareSystem/test/shared/OperationTest.java</file>
+            <file>file:/C:/Users/jaber/Documents/GitHub/BrightCareSystem/test/service/DoctorServiceTest.java</file>
+            <file>file:/C:/Users/jaber/Documents/GitHub/BrightCareSystem/test/security/TestNoTLS.java</file>
         </group>
     </open-files>
 </project-private>
